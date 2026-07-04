@@ -137,7 +137,7 @@ export default function CompoundManagementScreen() {
             </View>
           </View>
         )}
-        ListEmptyComponent={<EmptyState icon="🏘️" title="No compounds" subtitle="Add a compound to get started." />}
+        ListEmptyComponent={<EmptyState icon="business-outline" title="No compounds" subtitle="Add a compound to get started." />}
         contentContainerStyle={compounds.length === 0 ? {flex: 1} : {paddingBottom: SPACING.xl}}
       />
 

@@ -113,7 +113,7 @@ export default function AnnouncementsScreen({navigation}) {
         )}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}
         ListEmptyComponent={
-          <EmptyState icon="📢" title="No announcements" subtitle="Nothing has been posted yet." />
+          <EmptyState icon="megaphone-outline" title="No announcements" subtitle="Nothing has been posted yet." />
         }
         contentContainerStyle={items.length === 0 ? {flex: 1} : {paddingVertical: SPACING.sm}}
       />

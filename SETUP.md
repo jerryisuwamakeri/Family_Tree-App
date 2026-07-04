@@ -30,12 +30,18 @@
    cd familytree-mobile
    ```
 
-3. Start the Metro JS bundler:
+3. Install the JavaScript dependencies (required — `node_modules` is not in git).
+   Run this once after cloning, and again whenever `package.json` changes:
+   ```
+   npm install
+   ```
+
+4. Start the Metro JS bundler:
    ```
    npm start
    ```
 
-4. In a second terminal, build and launch the app:
+5. In a second terminal, build and launch the app:
    ```
    npm run android
    ```
@@ -60,8 +66,16 @@ Send this file to any Android phone and install it directly.
 
 ---
 
-## Server URL
+## Server URL (dev vs production)
 
-If you change your backend URL, edit this one line:
+Backend URLs live in **`src/config/env.js`**. The app picks automatically:
 
-  src/api/client.js  →  export const BASE_URL = 'https://your-server.com';
+- **Development** (`npm run android` / Metro running): uses the `dev` URL.
+  Default is `http://10.0.2.2:8000` — the Android emulator's alias for your
+  computer's `localhost`. Testing on a **physical phone**? Change it to your
+  machine's LAN IP, e.g. `http://192.168.1.20:8000`.
+- **Production** (a release APK built with `gradlew assembleRelease`): uses the
+  `prod` URL — `https://imammalikiabdullahifamilytree.com`.
+
+Edit whichever URL you need in `src/config/env.js`. Nothing else references the
+server URL directly.

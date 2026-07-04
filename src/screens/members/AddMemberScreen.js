@@ -7,6 +7,8 @@ import {membersApi} from '../../api/members';
 import {COLORS, FONTS, SPACING, RADIUS} from '../../utils/theme';
 import MemberPickerModal from '../../components/MemberPickerModal';
 import CompoundPickerField from '../../components/CompoundPickerField';
+import ProgenitorPickerField from '../../components/ProgenitorPickerField';
+import Icon from '../../components/Icon';
 
 const GENDERS = ['Male', 'Female'];
 
@@ -43,10 +45,10 @@ function MemberSelector({label, selectedName, onPress, onClear}) {
       </Text>
       {selectedName ? (
         <TouchableOpacity onPress={onClear} hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
-          <Text style={styles.clearBtn}>✕</Text>
+          <Icon name="close" size={18} color={COLORS.danger} />
         </TouchableOpacity>
       ) : (
-        <Text style={styles.chevron}>▾</Text>
+        <Icon name="chevron-down" size={18} color={COLORS.textMuted} />
       )}
     </TouchableOpacity>
   );
@@ -60,7 +62,7 @@ export default function AddMemberScreen({navigation}) {
     gender: 'Male', date_of_birth: '', date_of_death: '',
     occupation: '', education: '', phone: '', email: '',
     address: '', state_of_origin: '', lga: '',
-    compound_id: '',
+    compound_id: '', progenitor_id: '',
     father_id: '', father_name: '',
     mother_id: '', mother_name: '',
     is_deceased: false,
@@ -82,11 +84,40 @@ export default function AddMemberScreen({navigation}) {
       Alert.alert('Required', 'First and last name are required.');
       return;
     }
+    if (!form.progenitor_id) {
+      Alert.alert('Required', 'Select the branch ancestor (progenitor) this member descends from.');
+      return;
+    }
     setLoading(true);
     try {
-      const payload = {...form};
-      delete payload.father_name;
-      delete payload.mother_name;
+      // Map the form to the backend's member schema. Empty strings are dropped
+      // so nullable columns stay null instead of failing date/enum validation.
+      const raw = {
+        first_name: form.first_name.trim(),
+        last_name: form.last_name.trim(),
+        middle_name: form.other_names.trim(),
+        gender: form.gender,
+        dob: form.date_of_birth.trim(),
+        date_of_death: form.is_deceased ? form.date_of_death.trim() : '',
+        occupation: form.occupation.trim(),
+        education: form.education.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        address: form.address.trim(),
+        state_of_origin: form.state_of_origin.trim(),
+        lga: form.lga.trim(),
+        bio: form.bio.trim(),
+        compound_id: form.compound_id || undefined,
+        progenitor_id: form.progenitor_id,
+        father_id: form.father_id || undefined,
+        father_name: form.father_name.trim(),
+        mother_id: form.mother_id || undefined,
+        mother_name: form.mother_name.trim(),
+        is_deceased: form.is_deceased,
+      };
+      const payload = Object.fromEntries(
+        Object.entries(raw).filter(([, v]) => v !== '' && v !== undefined),
+      );
       await membersApi.create(payload);
       Alert.alert('Success', 'Member added successfully!', [
         {text: 'OK', onPress: () => navigation.goBack()},
@@ -165,6 +196,13 @@ export default function AddMemberScreen({navigation}) {
         </Field>
 
         <Text style={styles.sectionHead}>Family Links</Text>
+
+        <Field label="Branch Ancestor (Progenitor) *">
+          <ProgenitorPickerField
+            value={form.progenitor_id}
+            onChange={id => set('progenitor_id', id)}
+          />
+        </Field>
 
         <Field label="Compound / Branch">
           <CompoundPickerField

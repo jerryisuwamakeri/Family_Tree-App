@@ -2,10 +2,11 @@ import React, {useState} from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, ScrollView, KeyboardAvoidingView,
-  Platform, Alert,
+  Platform, Alert, StatusBar, Image,
 } from 'react-native';
 import {useAuth} from '../../context/AuthContext';
-import {COLORS, FONTS, SPACING, RADIUS} from '../../utils/theme';
+import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import Icon from '../../components/Icon';
 
 export default function LoginScreen({navigation}) {
   const {login} = useAuth();
@@ -33,34 +34,41 @@ export default function LoginScreen({navigation}) {
     <KeyboardAvoidingView
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        {/* Header */}
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        {/* Brand */}
         <View style={styles.header}>
-          <Text style={styles.logo}>🌳</Text>
-          <Text style={styles.appName}>Family Tree</Text>
+          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+
+          <Text style={styles.appName}>Maliki Family</Text>
           <Text style={styles.tagline}>Stay connected with your roots</Text>
         </View>
 
         {/* Form */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Sign In</Text>
+          <Text style={styles.cardTitle}>Welcome back</Text>
+          <Text style={styles.cardSub}>Sign in to continue</Text>
 
           <Text style={styles.label}>Email Address</Text>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="you@example.com"
-            placeholderTextColor={COLORS.textLight}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
+          <View style={styles.inputWrap}>
+            <Icon name="mail-outline" size={18} color={COLORS.textMuted} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="you@example.com"
+              placeholderTextColor={COLORS.textLight}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
 
           <Text style={styles.label}>Password</Text>
-          <View style={styles.passRow}>
+          <View style={styles.inputWrap}>
+            <Icon name="lock-closed-outline" size={18} color={COLORS.textMuted} style={styles.inputIcon} />
             <TextInput
-              style={[styles.input, styles.passInput]}
+              style={styles.input}
               value={password}
               onChangeText={setPassword}
               placeholder="••••••••"
@@ -68,7 +76,7 @@ export default function LoginScreen({navigation}) {
               secureTextEntry={!showPass}
             />
             <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowPass(v => !v)}>
-              <Text style={styles.eyeText}>{showPass ? '🙈' : '👁️'}</Text>
+              <Icon name={showPass ? 'eye-off-outline' : 'eye-outline'} size={20} color={COLORS.textMuted} />
             </TouchableOpacity>
           </View>
 
@@ -76,7 +84,7 @@ export default function LoginScreen({navigation}) {
             style={[styles.btn, loading && styles.btnDisabled]}
             onPress={handleLogin}
             disabled={loading}
-            activeOpacity={0.8}>
+            activeOpacity={0.85}>
             <Text style={styles.btnText}>{loading ? 'Signing in…' : 'Sign In'}</Text>
           </TouchableOpacity>
         </View>
@@ -95,71 +103,78 @@ export default function LoginScreen({navigation}) {
 }
 
 const styles = StyleSheet.create({
-  flex: {flex: 1, backgroundColor: COLORS.primary},
-  scroll: {flexGrow: 1, justifyContent: 'center', padding: SPACING.base},
-  header: {alignItems: 'center', marginBottom: SPACING.xl},
-  logo: {fontSize: 64},
+  flex: {flex: 1, backgroundColor: COLORS.background},
+  scroll: {flexGrow: 1, justifyContent: 'center', padding: SPACING.lg},
+  header: {alignItems: 'center', marginBottom: SPACING.xxl},
+  logo: {width: 108, height: 108},
   appName: {
     fontSize: FONTS.sizes.xxxl,
-    fontWeight: FONTS.weights.bold,
-    color: COLORS.white,
-    marginTop: SPACING.sm,
+    fontWeight: FONTS.weights.heavy,
+    color: COLORS.text,
+    marginTop: SPACING.base,
   },
   tagline: {
     fontSize: FONTS.sizes.sm,
-    color: 'rgba(255,255,255,0.8)',
+    color: COLORS.textMuted,
     marginTop: SPACING.xs,
   },
   card: {
     backgroundColor: COLORS.white,
     borderRadius: RADIUS.xl,
     padding: SPACING.xl,
+    ...SHADOWS.md,
   },
   cardTitle: {
     fontSize: FONTS.sizes.xl,
-    fontWeight: FONTS.weights.bold,
+    fontWeight: FONTS.weights.heavy,
     color: COLORS.text,
-    marginBottom: SPACING.lg,
+  },
+  cardSub: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textMuted,
+    marginTop: 2,
+    marginBottom: SPACING.xl,
   },
   label: {
     fontSize: FONTS.sizes.sm,
-    fontWeight: FONTS.weights.medium,
+    fontWeight: FONTS.weights.semibold,
     color: COLORS.text,
-    marginBottom: SPACING.xs,
+    marginBottom: SPACING.sm,
   },
-  input: {
+  inputWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surfaceAlt,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: RADIUS.md,
     paddingHorizontal: SPACING.base,
+    marginBottom: SPACING.base,
+  },
+  inputIcon: {fontSize: 16, marginRight: SPACING.sm},
+  input: {
+    flex: 1,
     paddingVertical: SPACING.md,
     fontSize: FONTS.sizes.base,
     color: COLORS.text,
-    backgroundColor: COLORS.background,
-    marginBottom: SPACING.base,
   },
-  passRow: {position: 'relative'},
-  passInput: {paddingRight: 48, marginBottom: SPACING.base},
-  eyeBtn: {
-    position: 'absolute',
-    right: SPACING.base,
-    top: 12,
-  },
-  eyeText: {fontSize: 20},
+  eyeBtn: {paddingLeft: SPACING.sm},
+  eyeText: {fontSize: 18},
   btn: {
     backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.full,
     paddingVertical: SPACING.base,
     alignItems: 'center',
-    marginTop: SPACING.sm,
+    marginTop: SPACING.md,
+    ...SHADOWS.brand,
   },
   btnDisabled: {opacity: 0.6},
   btnText: {
     color: COLORS.white,
-    fontSize: FONTS.sizes.base,
-    fontWeight: FONTS.weights.semibold,
+    fontSize: FONTS.sizes.md,
+    fontWeight: FONTS.weights.bold,
   },
   registerLink: {marginTop: SPACING.xl, alignItems: 'center'},
-  registerText: {color: 'rgba(255,255,255,0.9)', fontSize: FONTS.sizes.sm},
-  registerHighlight: {fontWeight: FONTS.weights.bold, textDecorationLine: 'underline'},
+  registerText: {color: COLORS.textMuted, fontSize: FONTS.sizes.sm},
+  registerHighlight: {color: COLORS.primaryDeep, fontWeight: FONTS.weights.bold},
 });

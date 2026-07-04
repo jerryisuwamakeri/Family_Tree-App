@@ -14,7 +14,7 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 
 function ProgenitorCard({item, onPress}) {
-  const photoUri = item.photo_path ? `${BASE_URL}/storage/${item.photo_path}` : null;
+  const photoUri = item.photo_url ? `${BASE_URL}${item.photo_url}` : null;
   return (
     <TouchableOpacity style={styles.card} onPress={() => onPress(item)} activeOpacity={0.8}>
       {photoUri ? (
@@ -27,7 +27,7 @@ function ProgenitorCard({item, onPress}) {
       <View style={styles.cardInfo}>
         <Text style={styles.cardName}>{item.full_name}</Text>
         <Text style={styles.cardCompound}>
-          {item.compound_name || item.compound?.name || 'No compound assigned'}
+          {item.compound || item.compound_ref?.name || 'No compound assigned'}
         </Text>
       </View>
       <Text style={styles.cardArrow}>›</Text>
@@ -43,7 +43,7 @@ function EditModal({progenitor, onClose, onSaved}) {
   const [saving, setSaving] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoUri, setPhotoUri] = useState(
-    progenitor.photo_path ? `${BASE_URL}/storage/${progenitor.photo_path}` : null,
+    progenitor.photo_url ? `${BASE_URL}${progenitor.photo_url}` : null,
   );
 
   useEffect(() => {
@@ -228,7 +228,7 @@ export default function ProgenitorManagementScreen() {
         }
         ListEmptyComponent={
           <EmptyState
-            icon="👴"
+            icon="people-circle-outline"
             title="No progenitors found"
             subtitle="Progenitors can be seeded from the Admin Dashboard."
           />

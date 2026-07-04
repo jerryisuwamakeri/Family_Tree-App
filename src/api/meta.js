@@ -13,8 +13,10 @@ export const metaApi = {
   memberSearch: query =>
     client.get('/meta/member-search', {params: {q: query}}).then(r => r.data),
 
-  relationship: (memberId, targetId) =>
-    client.get('/meta/relationship', {params: {member_id: memberId, target_id: targetId}}).then(r => r.data),
+  relationship: (fromMemberId, toMemberId) =>
+    client.get('/meta/relationship', {
+      params: {from_member_id: fromMemberId, to_member_id: toMemberId},
+    }).then(r => r.data),
 
   compounds: () =>
     client.get('/compounds').then(r => r.data),

@@ -1,32 +1,34 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../utils/theme';
-import {getInitials, formatDate, getAge} from '../utils/helpers';
+import {getInitials, formatDate, getAge, colorForName} from '../utils/helpers';
 import {BASE_URL} from '../api/client';
+import Icon from './Icon';
 
 export default function MemberCard({member, onPress}) {
-  const age = getAge(member.date_of_birth);
-  const photoUri = member.photo_path ? `${BASE_URL}/storage/${member.photo_path}` : null;
+  const age = getAge(member.dob);
+  const photoUri = member.photo_url ? `${BASE_URL}${member.photo_url}` : null;
+  const avatarColor = colorForName(member.full_name || '');
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.75}>
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
       <View style={styles.row}>
         {photoUri ? (
           <Image source={{uri: photoUri}} style={styles.avatar} />
         ) : (
-          <View style={[styles.avatar, styles.avatarFallback]}>
+          <View style={[styles.avatar, styles.avatarFallback, {backgroundColor: avatarColor}]}>
             <Text style={styles.initials}>{getInitials(member.full_name)}</Text>
           </View>
         )}
         <View style={styles.info}>
           <Text style={styles.name} numberOfLines={1}>{member.full_name}</Text>
-          {member.compound_name ? (
-            <Text style={styles.compound}>{member.compound_name}</Text>
+          {member.compound ? (
+            <Text style={styles.compound}>{member.compound}</Text>
           ) : null}
           <View style={styles.meta}>
-            {member.date_of_birth ? (
+            {member.dob ? (
               <Text style={styles.metaText}>
-                {age !== null ? `Age ${age}` : formatDate(member.date_of_birth)}
+                {age !== null ? `Age ${age}` : formatDate(member.dob)}
               </Text>
             ) : null}
             {member.is_deceased ? (
@@ -39,7 +41,9 @@ export default function MemberCard({member, onPress}) {
             ) : null}
           </View>
         </View>
-        <Text style={styles.arrow}>›</Text>
+        <View style={styles.arrowWrap}>
+          <Icon name="chevron-forward" size={18} color={COLORS.textMuted} />
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -48,10 +52,10 @@ export default function MemberCard({member, onPress}) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.card,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.lg,
     padding: SPACING.base,
     marginHorizontal: SPACING.base,
-    marginVertical: SPACING.xs,
+    marginVertical: SPACING.xs + 2,
     ...SHADOWS.sm,
   },
   row: {
@@ -59,13 +63,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatar: {
-    width: 52,
-    height: 52,
+    width: 54,
+    height: 54,
     borderRadius: RADIUS.full,
     marginRight: SPACING.md,
   },
   avatarFallback: {
-    backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -108,9 +111,19 @@ const styles = StyleSheet.create({
     color: COLORS.danger,
     fontWeight: FONTS.weights.medium,
   },
-  arrow: {
-    fontSize: 22,
-    color: COLORS.textLight,
+  arrowWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginLeft: SPACING.sm,
+  },
+  arrow: {
+    fontSize: 20,
+    lineHeight: 22,
+    color: COLORS.textMuted,
+    fontWeight: FONTS.weights.bold,
   },
 });

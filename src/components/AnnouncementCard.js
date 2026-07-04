@@ -2,6 +2,7 @@ import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../utils/theme';
 import {formatDate, truncate} from '../utils/helpers';
+import Icon from './Icon';
 
 export default function AnnouncementCard({announcement, onPress}) {
   return (
@@ -13,8 +14,9 @@ export default function AnnouncementCard({announcement, onPress}) {
       <Text style={styles.body}>{truncate(announcement.body, 120)}</Text>
       {announcement.attachments?.length > 0 && (
         <View style={styles.attachmentBadge}>
+          <Icon name="attach" size={13} color={COLORS.primary} />
           <Text style={styles.attachmentText}>
-            📎 {announcement.attachments.length} attachment{announcement.attachments.length > 1 ? 's' : ''}
+            {announcement.attachments.length} attachment{announcement.attachments.length > 1 ? 's' : ''}
           </Text>
         </View>
       )}
@@ -28,11 +30,11 @@ export default function AnnouncementCard({announcement, onPress}) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.card,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.lg,
     padding: SPACING.base,
     marginHorizontal: SPACING.base,
-    marginVertical: SPACING.xs,
-    borderLeftWidth: 4,
+    marginVertical: SPACING.xs + 2,
+    borderLeftWidth: 5,
     borderLeftColor: COLORS.primary,
     ...SHADOWS.sm,
   },
@@ -59,6 +61,9 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   attachmentBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     marginTop: SPACING.sm,
     backgroundColor: COLORS.primaryLight,
     borderRadius: RADIUS.sm,

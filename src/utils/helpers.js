@@ -1,3 +1,5 @@
+import {AVATAR_COLORS} from './theme';
+
 export function formatDate(dateStr) {
   if (!dateStr) return 'N/A';
   const d = new Date(dateStr);
@@ -28,16 +30,25 @@ export function truncate(str, max = 80) {
   return str.length > max ? str.slice(0, max) + '…' : str;
 }
 
+// Stable color per person so an avatar doesn't change between renders.
+export function colorForName(name = '') {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  }
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+}
+
 export function getRoleBadgeColor(role) {
   const map = {
-    super_admin: '#7c3aed',
-    family_admin: '#059669',
-    branch_manager: '#2563eb',
-    registered_member: '#d97706',
-    contributor: '#6b7280',
-    public_viewer: '#9ca3af',
+    super_admin: '#8B5CF6',
+    family_admin: '#00B14F',
+    branch_manager: '#3B82F6',
+    registered_member: '#FF7A1A',
+    contributor: '#667085',
+    public_viewer: '#98A2B3',
   };
-  return map[role] || '#6b7280';
+  return map[role] || '#667085';
 }
 
 export function getRoleLabel(role) {

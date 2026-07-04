@@ -1,26 +1,32 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View, Text, StyleSheet, ScrollView, RefreshControl,
-  TouchableOpacity, Alert,
+  TouchableOpacity, Alert, StatusBar, Image,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useFocusEffect} from '@react-navigation/native';
 import {useAuth} from '../context/AuthContext';
 import {membersApi} from '../api/members';
 import {metaApi} from '../api/meta';
 import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../utils/theme';
-import {getRoleLabel, isAdmin} from '../utils/helpers';
+import {getRoleLabel, isAdmin, getInitials} from '../utils/helpers';
 import LoadingSpinner from '../components/LoadingSpinner';
+import Icon from '../components/Icon';
 
-function StatCard({label, value, color = COLORS.primary}) {
+function StatCard({icon, set, label, value, tint}) {
   return (
-    <View style={[styles.statCard, {borderTopColor: color}]}>
-      <Text style={[styles.statValue, {color}]}>{value ?? '—'}</Text>
+    <View style={styles.statCard}>
+      <View style={[styles.statIconWrap, {backgroundColor: tint + '22'}]}>
+        <Icon name={icon} set={set} size={20} color={tint} />
+      </View>
+      <Text style={styles.statValue}>{value ?? '—'}</Text>
       <Text style={styles.statLabel}>{label}</Text>
     </View>
   );
 }
 
 export default function HomeScreen({navigation}) {
+  const insets = useSafeAreaInsets();
   const {user, logout, refreshMe} = useAuth();
   const [stats, setStats] = useState(null);
   const [compoundCounts, setCompoundCounts] = useState([]);
@@ -61,188 +67,303 @@ export default function HomeScreen({navigation}) {
 
   if (loading) return <LoadingSpinner fullScreen />;
 
+  const maxCompound = Math.max(1, ...compoundCounts.map(c => c.total || 0));
+
+  const actions = [
+    {icon: 'people', label: 'Members', sub: 'Browse family', tint: COLORS.primary, onPress: () => navigation.navigate('Members')},
+    {icon: 'megaphone', label: 'News', sub: 'Announcements', tint: COLORS.secondary, onPress: () => navigation.navigate('Announcements')},
+    {icon: 'chatbubbles', label: 'Messages', sub: 'Stay in touch', tint: COLORS.info, onPress: () => navigation.navigate('Messages')},
+    isAdmin(user) && {icon: 'shield-checkmark', label: 'Admin', sub: 'Manage family', tint: '#8B5CF6', onPress: () => navigation.navigate('Admin')},
+  ].filter(Boolean);
+
   return (
-    <ScrollView
-      style={styles.screen}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}>
-      {/* Welcome banner */}
-      <View style={styles.banner}>
-        <View>
-          <Text style={styles.welcomeText}>Welcome back,</Text>
-          <Text style={styles.userName}>{user?.name}</Text>
+    <View style={styles.screen}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+
+      {/* Hero header */}
+      <View style={[styles.hero, {paddingTop: insets.top + SPACING.md}]}>
+        <View style={styles.heroTopRow}>
+          <View style={styles.brandRow}>
+            <View style={styles.brandMark}>
+              <Image source={require('../assets/logo.png')} style={styles.brandLogo} resizeMode="contain" />
+            </View>
+            <Text style={styles.brandName}>Maliki Family</Text>
+          </View>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn} activeOpacity={0.8}>
+            <Text style={styles.logoutText}>Sign Out</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.greetRow}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{getInitials(user?.name)}</Text>
+          </View>
+          <View style={{flex: 1}}>
+            <Text style={styles.welcomeText}>Welcome back</Text>
+            <Text style={styles.userName} numberOfLines={1}>{user?.name}</Text>
+          </View>
           <View style={styles.roleBadge}>
             <Text style={styles.roleText}>{getRoleLabel(user?.role)}</Text>
           </View>
         </View>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
-          <Text style={styles.logoutText}>Sign Out</Text>
-        </TouchableOpacity>
       </View>
 
-      {/* Approval notice */}
-      {user && !user.approved && (
-        <View style={styles.noticeBanner}>
-          <Text style={styles.noticeText}>
-            ⏳ Your account is pending approval by a family admin.
-          </Text>
-        </View>
-      )}
+      <ScrollView
+        style={styles.body}
+        contentContainerStyle={{paddingBottom: SPACING.xxxl}}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} tintColor={COLORS.primary} />}>
 
-      {/* Quick actions */}
-      <Text style={styles.sectionTitle}>Quick Actions</Text>
-      <View style={styles.actions}>
-        {[
-          {icon: '👥', label: 'View Members', onPress: () => navigation.navigate('Members')},
-          {icon: '📢', label: 'Announcements', onPress: () => navigation.navigate('Announcements')},
-          {icon: '💬', label: 'Messages', onPress: () => navigation.navigate('Messages')},
-          isAdmin(user) && {icon: '⚙️', label: 'Admin Panel', onPress: () => navigation.navigate('Admin')},
-        ].filter(Boolean).map((action, i) => (
-          <TouchableOpacity key={i} style={styles.actionCard} onPress={action.onPress} activeOpacity={0.75}>
-            <Text style={styles.actionIcon}>{action.icon}</Text>
-            <Text style={styles.actionLabel}>{action.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Family stats */}
-      {stats && (
-        <>
-          <Text style={styles.sectionTitle}>Family Statistics</Text>
-          <View style={styles.statsGrid}>
-            <StatCard label="Total Members" value={stats.total_members} />
-            <StatCard label="Living" value={stats.living_members} color={COLORS.success} />
-            <StatCard label="Deceased" value={stats.deceased_members} color={COLORS.textMuted} />
-            <StatCard label="Compounds" value={compoundCounts.length} color={COLORS.secondary} />
+        {/* Approval notice */}
+        {user && !user.approved && (
+          <View style={styles.noticeBanner}>
+            <Icon name="time-outline" size={18} color="#92610A" />
+            <Text style={styles.noticeText}>
+              Your account is pending approval by a family admin.
+            </Text>
           </View>
-        </>
-      )}
+        )}
 
-      {/* Compound breakdown */}
-      {compoundCounts.length > 0 && (
-        <>
-          <Text style={styles.sectionTitle}>By Compound</Text>
-          <View style={styles.compoundsContainer}>
-            {compoundCounts.map((c, i) => (
-              <View key={i} style={styles.compoundRow}>
-                <Text style={styles.compoundName}>{c.name}</Text>
-                <Text style={styles.compoundCount}>{c.count}</Text>
+        {/* Quick actions */}
+        <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <View style={styles.actions}>
+          {actions.map((action, i) => (
+            <TouchableOpacity key={i} style={styles.actionCard} onPress={action.onPress} activeOpacity={0.85}>
+              <View style={[styles.actionIconWrap, {backgroundColor: action.tint + '18'}]}>
+                <Icon name={action.icon} size={24} color={action.tint} />
               </View>
-            ))}
-          </View>
-        </>
-      )}
+              <Text style={styles.actionLabel}>{action.label}</Text>
+              <Text style={styles.actionSub}>{action.sub}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      <View style={{height: SPACING.xxxl}} />
-    </ScrollView>
+        {/* Family stats */}
+        {stats && (
+          <>
+            <Text style={styles.sectionTitle}>Family Overview</Text>
+            <View style={styles.statsGrid}>
+              <StatCard icon="account-group" set="mci" label="Total Members" value={stats.members} tint={COLORS.primary} />
+              <StatCard icon="sprout" set="mci" label="Living" value={stats.living} tint={COLORS.success} />
+              <StatCard icon="candle" set="mci" label="Deceased" value={stats.deceased} tint={COLORS.textMuted} />
+              <StatCard icon="business" label="Compounds" value={stats.compounds} tint={COLORS.secondary} />
+            </View>
+          </>
+        )}
+
+        {/* Compound breakdown */}
+        {compoundCounts.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>By Compound</Text>
+            <View style={styles.compoundsContainer}>
+              {compoundCounts.map((c, i) => (
+                <View key={i} style={[styles.compoundRow, i === compoundCounts.length - 1 && {borderBottomWidth: 0}]}>
+                  <View style={styles.compoundInfo}>
+                    <Text style={styles.compoundName} numberOfLines={1}>{c.compound}</Text>
+                    <View style={styles.compoundBarTrack}>
+                      <View style={[styles.compoundBarFill, {width: `${Math.round((c.total / maxCompound) * 100)}%`}]} />
+                    </View>
+                  </View>
+                  <View style={styles.compoundCountPill}>
+                    <Text style={styles.compoundCount}>{c.total}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {flex: 1, backgroundColor: COLORS.background},
-  banner: {
+
+  // Hero
+  hero: {
     backgroundColor: COLORS.primary,
-    padding: SPACING.xl,
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.xl,
+    borderBottomLeftRadius: RADIUS.xl,
+    borderBottomRightRadius: RADIUS.xl,
+    ...SHADOWS.brand,
+  },
+  heroTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
-  welcomeText: {color: 'rgba(255,255,255,0.8)', fontSize: FONTS.sizes.sm},
+  brandRow: {flexDirection: 'row', alignItems: 'center', gap: SPACING.sm},
+  brandMark: {
+    width: 34, height: 34, borderRadius: RADIUS.md,
+    backgroundColor: COLORS.white,
+    alignItems: 'center', justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  brandLogo: {width: 30, height: 30},
+  brandName: {
+    color: COLORS.white,
+    fontSize: FONTS.sizes.md,
+    fontWeight: FONTS.weights.heavy,
+    letterSpacing: 0.2,
+  },
+  logoutBtn: {
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderRadius: RADIUS.full,
+    paddingHorizontal: SPACING.base,
+    paddingVertical: SPACING.sm,
+  },
+  logoutText: {color: COLORS.white, fontSize: FONTS.sizes.xs, fontWeight: FONTS.weights.bold},
+  greetRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    marginTop: SPACING.xl,
+  },
+  avatar: {
+    width: 52, height: 52, borderRadius: RADIUS.full,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: 'rgba(255,255,255,0.35)',
+  },
+  avatarText: {color: COLORS.white, fontSize: FONTS.sizes.lg, fontWeight: FONTS.weights.bold},
+  welcomeText: {color: 'rgba(255,255,255,0.85)', fontSize: FONTS.sizes.sm},
   userName: {
     color: COLORS.white,
     fontSize: FONTS.sizes.xl,
-    fontWeight: FONTS.weights.bold,
-    marginTop: 2,
+    fontWeight: FONTS.weights.heavy,
+    marginTop: 1,
   },
   roleBadge: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: COLORS.white,
     borderRadius: RADIUS.full,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 3,
-    alignSelf: 'flex-start',
-    marginTop: SPACING.xs,
-  },
-  roleText: {color: COLORS.white, fontSize: FONTS.sizes.xs, fontWeight: FONTS.weights.medium},
-  logoutBtn: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: RADIUS.md,
     paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
+    paddingVertical: 5,
   },
-  logoutText: {color: COLORS.white, fontSize: FONTS.sizes.sm, fontWeight: FONTS.weights.medium},
+  roleText: {color: COLORS.primaryDeep, fontSize: FONTS.sizes.xs, fontWeight: FONTS.weights.bold},
+
+  body: {flex: 1, marginTop: -SPACING.sm},
+
   noticeBanner: {
-    backgroundColor: COLORS.secondaryLight,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.secondary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.warningLight,
     padding: SPACING.base,
-    margin: SPACING.base,
-    borderRadius: RADIUS.sm,
+    marginHorizontal: SPACING.base,
+    marginTop: SPACING.base,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: '#FBE3A1',
   },
-  noticeText: {color: COLORS.secondary, fontSize: FONTS.sizes.sm},
+  noticeIcon: {fontSize: 18},
+  noticeText: {flex: 1, color: '#92610A', fontSize: FONTS.sizes.sm, fontWeight: FONTS.weights.medium},
+
   sectionTitle: {
-    fontSize: FONTS.sizes.base,
-    fontWeight: FONTS.weights.semibold,
+    fontSize: FONTS.sizes.md,
+    fontWeight: FONTS.weights.heavy,
     color: COLORS.text,
     marginTop: SPACING.xl,
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.md,
     marginHorizontal: SPACING.base,
   },
+
+  // Quick actions
   actions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: SPACING.sm,
-    gap: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    gap: SPACING.md,
   },
   actionCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.lg,
     padding: SPACING.base,
-    alignItems: 'center',
     width: '47%',
     ...SHADOWS.sm,
   },
-  actionIcon: {fontSize: 32, marginBottom: SPACING.sm},
-  actionLabel: {
-    fontSize: FONTS.sizes.sm,
-    fontWeight: FONTS.weights.medium,
-    color: COLORS.text,
-    textAlign: 'center',
+  actionIconWrap: {
+    width: 46, height: 46, borderRadius: RADIUS.md,
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: SPACING.md,
   },
+  actionIcon: {fontSize: 24},
+  actionLabel: {
+    fontSize: FONTS.sizes.base,
+    fontWeight: FONTS.weights.bold,
+    color: COLORS.text,
+  },
+  actionSub: {
+    fontSize: FONTS.sizes.xs,
+    color: COLORS.textMuted,
+    marginTop: 2,
+  },
+
+  // Stats
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: SPACING.sm,
-    gap: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    gap: SPACING.md,
   },
   statCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.lg,
     padding: SPACING.base,
     width: '47%',
-    borderTopWidth: 3,
     ...SHADOWS.sm,
   },
-  statValue: {fontSize: FONTS.sizes.xxl, fontWeight: FONTS.weights.bold},
-  statLabel: {fontSize: FONTS.sizes.xs, color: COLORS.textMuted, marginTop: 2},
+  statIconWrap: {
+    width: 40, height: 40, borderRadius: RADIUS.full,
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: SPACING.sm,
+  },
+  statIcon: {fontSize: 20},
+  statValue: {fontSize: FONTS.sizes.xxl, fontWeight: FONTS.weights.heavy, color: COLORS.text},
+  statLabel: {fontSize: FONTS.sizes.xs, color: COLORS.textMuted, marginTop: 2, fontWeight: FONTS.weights.medium},
+
+  // Compounds
   compoundsContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.lg,
     marginHorizontal: SPACING.base,
+    paddingHorizontal: SPACING.base,
     ...SHADOWS.sm,
-    overflow: 'hidden',
   },
   compoundRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: SPACING.base,
+    gap: SPACING.md,
     paddingVertical: SPACING.md,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
-  compoundName: {fontSize: FONTS.sizes.sm, color: COLORS.text, fontWeight: FONTS.weights.medium},
+  compoundInfo: {flex: 1},
+  compoundName: {fontSize: FONTS.sizes.sm, color: COLORS.text, fontWeight: FONTS.weights.semibold},
+  compoundBarTrack: {
+    height: 6,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.surfaceAlt,
+    marginTop: SPACING.sm,
+    overflow: 'hidden',
+  },
+  compoundBarFill: {
+    height: '100%',
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.primary,
+  },
+  compoundCountPill: {
+    minWidth: 34,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: 'center',
+  },
   compoundCount: {
     fontSize: FONTS.sizes.sm,
-    color: COLORS.primary,
+    color: COLORS.primaryDeep,
     fontWeight: FONTS.weights.bold,
   },
 });

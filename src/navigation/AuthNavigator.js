@@ -11,8 +11,10 @@ export default function AuthNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {backgroundColor: COLORS.primary},
+        headerShadowVisible: false,
         headerTintColor: COLORS.white,
-        headerTitleStyle: {fontWeight: '700'},
+        headerTitleAlign: 'center',
+        headerTitleStyle: {fontWeight: '800'},
       }}>
       <Stack.Screen name="Login" component={LoginScreen} options={{headerShown: false}} />
       <Stack.Screen name="Register" component={RegisterScreen} options={{title: 'Create Account'}} />

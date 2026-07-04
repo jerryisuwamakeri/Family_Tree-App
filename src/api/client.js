@@ -1,9 +1,9 @@
 import axios from 'axios';
 import {storage} from '../utils/storage';
+import {BASE_URL, API_URL} from '../config/env';
 
-// Change this to your production server URL
-export const BASE_URL = 'https://imammalikiabdullahifamiilytree.com';
-export const API_URL = `${BASE_URL}/api`;
+// Re-export so callers can keep pulling these off the client.
+export {BASE_URL, API_URL};
 
 const client = axios.create({
   baseURL: API_URL,

@@ -66,7 +66,7 @@ export default function BranchMessagesScreen() {
         )}
         onContentSizeChange={() => listRef.current?.scrollToEnd()}
         ListEmptyComponent={
-          <EmptyState icon="🏘️" title="No branch messages" subtitle="Be the first to post a message to your branch." />
+          <EmptyState icon="business-outline" title="No branch messages" subtitle="Be the first to post a message to your branch." />
         }
         contentContainerStyle={messages.length === 0 ? {flex: 1} : {paddingVertical: SPACING.sm}}
       />

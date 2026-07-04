@@ -1,23 +1,53 @@
+// Design tokens. Every screen pulls from here — adjust look centrally, not
+// per-component. Palette is intentionally secular (no religious motifs).
+
 export const COLORS = {
-  primary: '#059669',       // emerald-600
-  primaryDark: '#047857',   // emerald-700
-  primaryLight: '#d1fae5',  // emerald-100
-  secondary: '#d97706',     // amber-600
-  secondaryLight: '#fef3c7',// amber-100
-  background: '#f9fafb',
-  card: '#ffffff',
-  text: '#111827',
-  textMuted: '#6b7280',
-  textLight: '#9ca3af',
-  border: '#e5e7eb',
-  danger: '#dc2626',
-  dangerLight: '#fee2e2',
-  success: '#16a34a',
-  warning: '#d97706',
-  white: '#ffffff',
+  // Brand green
+  primary: '#00B14F',
+  primaryDark: '#009644',   // pressed states
+  primaryDeep: '#00753A',   // text/icons on light-green surfaces
+  primaryLight: '#E4F8ED',  // filled surfaces, chips
+  primarySurface: '#F1FBF5',// faint tint for large fills
+
+  // Accent
+  secondary: '#FF7A1A',
+  secondaryDark: '#E5670A',
+  secondaryLight: '#FFF1E6',
+
+  // Neutrals / surfaces
+  background: '#F5F7F9',     // app canvas
+  card: '#FFFFFF',
+  surfaceAlt: '#F0F2F5',     // inputs, chips
+  white: '#FFFFFF',
   black: '#000000',
-  overlay: 'rgba(0,0,0,0.5)',
+
+  // Text
+  text: '#0F1B2D',          // near-black, slightly cool
+  textMuted: '#667085',
+  textLight: '#98A2B3',
+
+  // Lines
+  border: '#EAECF0',
+  borderStrong: '#D7DCE3',
+
+  // Status
+  danger: '#EF4444',
+  dangerLight: '#FEECEC',
+  success: '#16A34A',
+  successLight: '#E4F8ED',
+  warning: '#F59E0B',
+  warningLight: '#FEF3C7',
+  info: '#3B82F6',
+  infoLight: '#E7F0FE',
+
+  overlay: 'rgba(15,27,45,0.55)',
 };
+
+// Avatar/chip colors — all pass contrast on white.
+export const AVATAR_COLORS = [
+  '#00B14F', '#3B82F6', '#8B5CF6', '#EC4899',
+  '#F59E0B', '#14B8A6', '#EF4444', '#6366F1',
+];
 
 export const FONTS = {
   regular: 'System',
@@ -28,14 +58,16 @@ export const FONTS = {
     md: 17,
     lg: 19,
     xl: 22,
-    xxl: 26,
-    xxxl: 32,
+    xxl: 27,
+    xxxl: 34,
+    display: 40,
   },
   weights: {
     normal: '400',
     medium: '500',
     semibold: '600',
     bold: '700',
+    heavy: '800',
   },
 };
 
@@ -51,33 +83,42 @@ export const SPACING = {
 };
 
 export const RADIUS = {
-  sm: 6,
-  md: 10,
-  lg: 14,
-  xl: 20,
+  sm: 10,
+  md: 14,
+  lg: 20,
+  xl: 26,
+  xxl: 32,
   full: 9999,
 };
 
 export const SHADOWS = {
   sm: {
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowColor: '#0F1B2D',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   md: {
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowColor: '#0F1B2D',
+    shadowOffset: {width: 0, height: 6},
+    shadowOpacity: 0.09,
+    shadowRadius: 16,
+    elevation: 5,
   },
   lg: {
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowColor: '#0F1B2D',
+    shadowOffset: {width: 0, height: 12},
+    shadowOpacity: 0.14,
+    shadowRadius: 28,
+    elevation: 10,
+  },
+  // Green-tinted shadow for primary buttons / hero surfaces
+  brand: {
+    shadowColor: '#00B14F',
+    shadowOffset: {width: 0, height: 8},
+    shadowOpacity: 0.28,
+    shadowRadius: 18,
+    elevation: 8,
   },
 };

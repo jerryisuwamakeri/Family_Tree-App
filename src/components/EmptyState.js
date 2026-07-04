@@ -1,11 +1,14 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {COLORS, FONTS, SPACING} from '../utils/theme';
+import {COLORS, FONTS, SPACING, RADIUS} from '../utils/theme';
+import Icon from './Icon';
 
-export default function EmptyState({icon = '📭', title = 'Nothing here', subtitle}) {
+export default function EmptyState({icon = 'file-tray-outline', set = 'ion', title = 'Nothing here', subtitle}) {
   return (
     <View style={styles.container}>
-      <Text style={styles.icon}>{icon}</Text>
+      <View style={styles.iconWrap}>
+        <Icon name={icon} set={set} size={40} color={COLORS.primary} />
+      </View>
       <Text style={styles.title}>{title}</Text>
       {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
     </View>
@@ -20,7 +23,16 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xxxl,
     paddingHorizontal: SPACING.xl,
   },
-  icon: {fontSize: 48, marginBottom: SPACING.base},
+  iconWrap: {
+    width: 88,
+    height: 88,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.lg,
+  },
+  icon: {fontSize: 40},
   title: {
     fontSize: FONTS.sizes.lg,
     fontWeight: FONTS.weights.semibold,

@@ -7,6 +7,10 @@ import {membersApi} from '../../api/members';
 import {COLORS, FONTS, SPACING, RADIUS} from '../../utils/theme';
 import MemberPickerModal from '../../components/MemberPickerModal';
 import CompoundPickerField from '../../components/CompoundPickerField';
+import ProgenitorPickerField from '../../components/ProgenitorPickerField';
+import Icon from '../../components/Icon';
+
+const dateOnly = v => (v ? String(v).slice(0, 10) : '');
 
 const GENDERS = ['Male', 'Female'];
 
@@ -27,10 +31,10 @@ function MemberSelector({label, selectedName, onPress, onClear}) {
       </Text>
       {selectedName ? (
         <TouchableOpacity onPress={onClear} hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
-          <Text style={styles.clearBtn}>✕</Text>
+          <Icon name="close" size={18} color={COLORS.danger} />
         </TouchableOpacity>
       ) : (
-        <Text style={styles.chevron}>▾</Text>
+        <Icon name="chevron-down" size={18} color={COLORS.textMuted} />
       )}
     </TouchableOpacity>
   );
@@ -43,10 +47,10 @@ export default function EditMemberScreen({route, navigation}) {
   const [form, setForm] = useState({
     first_name: member.first_name || '',
     last_name: member.last_name || '',
-    other_names: member.other_names || '',
+    other_names: member.middle_name || '',
     gender: member.gender || 'Male',
-    date_of_birth: member.date_of_birth || '',
-    date_of_death: member.date_of_death || '',
+    date_of_birth: dateOnly(member.dob),
+    date_of_death: dateOnly(member.date_of_death),
     occupation: member.occupation || '',
     education: member.education || '',
     phone: member.phone || '',
@@ -55,6 +59,7 @@ export default function EditMemberScreen({route, navigation}) {
     state_of_origin: member.state_of_origin || '',
     lga: member.lga || '',
     compound_id: member.compound_id || '',
+    progenitor_id: member.progenitor_id || member.progenitor?.id || '',
     father_id: member.father?.id || member.father_id || '',
     father_name: member.father?.full_name || '',
     mother_id: member.mother?.id || member.mother_id || '',
@@ -80,9 +85,34 @@ export default function EditMemberScreen({route, navigation}) {
     }
     setLoading(true);
     try {
-      const payload = {...form};
-      delete payload.father_name;
-      delete payload.mother_name;
+      // Send the backend's field names. Empty strings become null (dropped) so
+      // clearing a field works and blanks don't trip date/enum validation.
+      const raw = {
+        first_name: form.first_name.trim(),
+        last_name: form.last_name.trim(),
+        middle_name: form.other_names.trim(),
+        gender: form.gender,
+        dob: form.date_of_birth.trim(),
+        date_of_death: form.is_deceased ? form.date_of_death.trim() : '',
+        occupation: form.occupation.trim(),
+        education: form.education.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        address: form.address.trim(),
+        state_of_origin: form.state_of_origin.trim(),
+        lga: form.lga.trim(),
+        bio: form.bio.trim(),
+        compound_id: form.compound_id || undefined,
+        progenitor_id: form.progenitor_id || undefined,
+        father_id: form.father_id || undefined,
+        father_name: form.father_name.trim(),
+        mother_id: form.mother_id || undefined,
+        mother_name: form.mother_name.trim(),
+        is_deceased: form.is_deceased,
+      };
+      const payload = Object.fromEntries(
+        Object.entries(raw).filter(([, v]) => v !== '' && v !== undefined),
+      );
       await membersApi.update(member.id, payload);
       Alert.alert('Saved', 'Member updated successfully!', [
         {text: 'OK', onPress: () => navigation.goBack()},
@@ -156,6 +186,13 @@ export default function EditMemberScreen({route, navigation}) {
         <Field label="Bio / Notes">{inp('bio', 'Brief biography…', {multiline: true})}</Field>
 
         <Text style={styles.sectionHead}>Family Links</Text>
+
+        <Field label="Branch Ancestor (Progenitor)">
+          <ProgenitorPickerField
+            value={form.progenitor_id}
+            onChange={id => set('progenitor_id', id)}
+          />
+        </Field>
 
         <Field label="Compound / Branch">
           <CompoundPickerField

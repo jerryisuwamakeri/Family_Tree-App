@@ -76,8 +76,8 @@ export default function MemberPickerModal({visible, title = 'Select Member', onS
               </View>
               <View style={styles.info}>
                 <Text style={styles.name}>{item.full_name}</Text>
-                {item.compound_name ? (
-                  <Text style={styles.sub}>{item.compound_name}</Text>
+                {item.compound ? (
+                  <Text style={styles.sub}>{item.compound}</Text>
                 ) : null}
               </View>
             </TouchableOpacity>

@@ -6,7 +6,8 @@ import {
 import {Picker} from '@react-native-picker/picker';
 import {useAuth} from '../../context/AuthContext';
 import {metaApi} from '../../api/meta';
-import {COLORS, FONTS, SPACING, RADIUS} from '../../utils/theme';
+import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import Icon from '../../components/Icon';
 
 export default function RegisterScreen() {
   const {register} = useAuth();
@@ -53,8 +54,8 @@ export default function RegisterScreen() {
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <Text style={styles.heading}>Create Your Account</Text>
-        <Text style={styles.sub}>Join your family network</Text>
+        <Text style={styles.heading}>Create your account</Text>
+        <Text style={styles.sub}>Join the Maliki Family network</Text>
 
         {[
           {label: 'Full Name *', key: 'name', placeholder: 'John Doe'},
@@ -100,7 +101,7 @@ export default function RegisterScreen() {
             secureTextEntry={!showPass}
           />
           <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowPass(v => !v)}>
-            <Text>{showPass ? '🙈' : '👁️'}</Text>
+            <Icon name={showPass ? 'eye-off-outline' : 'eye-outline'} size={20} color={COLORS.textMuted} />
           </TouchableOpacity>
         </View>
 
@@ -134,8 +135,8 @@ const styles = StyleSheet.create({
   flex: {flex: 1, backgroundColor: COLORS.background},
   scroll: {flexGrow: 1, padding: SPACING.base},
   heading: {
-    fontSize: FONTS.sizes.xl,
-    fontWeight: FONTS.weights.bold,
+    fontSize: FONTS.sizes.xxl,
+    fontWeight: FONTS.weights.heavy,
     color: COLORS.text,
     marginTop: SPACING.base,
   },
@@ -158,14 +159,14 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md,
     fontSize: FONTS.sizes.base,
     color: COLORS.text,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.surfaceAlt,
     marginBottom: SPACING.base,
   },
   pickerWrapper: {
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: RADIUS.md,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.surfaceAlt,
     marginBottom: SPACING.base,
     overflow: 'hidden',
   },
@@ -175,16 +176,17 @@ const styles = StyleSheet.create({
   eyeBtn: {position: 'absolute', right: SPACING.base, top: 14},
   btn: {
     backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.full,
     paddingVertical: SPACING.base,
     alignItems: 'center',
-    marginTop: SPACING.sm,
+    marginTop: SPACING.md,
+    ...SHADOWS.brand,
   },
   btnDisabled: {opacity: 0.6},
   btnText: {
     color: COLORS.white,
-    fontSize: FONTS.sizes.base,
-    fontWeight: FONTS.weights.semibold,
+    fontSize: FONTS.sizes.md,
+    fontWeight: FONTS.weights.bold,
   },
   note: {
     fontSize: FONTS.sizes.xs,

@@ -4,7 +4,8 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {useAuth} from '../context/AuthContext';
 import {isAdmin} from '../utils/helpers';
-import {COLORS, FONTS} from '../utils/theme';
+import {COLORS, FONTS, RADIUS, SHADOWS} from '../utils/theme';
+import Icon from '../components/Icon';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
@@ -28,22 +29,29 @@ const Stack = createNativeStackNavigator();
 
 const stackOptions = {
   headerStyle: {backgroundColor: COLORS.primary},
+  headerShadowVisible: false,
   headerTintColor: COLORS.white,
-  headerTitleStyle: {fontWeight: '700', fontSize: FONTS.sizes.md},
+  headerTitleAlign: 'center',
+  headerTitleStyle: {fontWeight: '800', fontSize: FONTS.sizes.md, color: COLORS.white},
 };
 
 function TabIcon({name, focused}) {
   const icons = {
-    Home: '🏠',
-    Members: '👥',
-    Messages: '💬',
-    Announcements: '📢',
-    Admin: '⚙️',
+    Home: 'home',
+    Members: 'people',
+    Messages: 'chatbubbles',
+    Announcements: 'megaphone',
+    Admin: 'settings',
   };
+  const base = icons[name] || 'ellipse';
   return (
-    <Text style={[styles.tabIcon, {opacity: focused ? 1 : 0.55}]}>
-      {icons[name] || '●'}
-    </Text>
+    <View style={[styles.tabIconWrap, focused && styles.tabIconWrapActive]}>
+      <Icon
+        name={focused ? base : `${base}-outline`}
+        size={22}
+        color={focused ? COLORS.primaryDeep : COLORS.textLight}
+      />
+    </View>
   );
 }
 
@@ -52,7 +60,7 @@ function TabIcon({name, focused}) {
 function HomeStack() {
   return (
     <Stack.Navigator screenOptions={stackOptions}>
-      <Stack.Screen name="Home" component={HomeScreen} options={{title: 'Family Tree'}} />
+      <Stack.Screen name="Home" component={HomeScreen} options={{headerShown: false}} />
     </Stack.Navigator>
   );
 }
@@ -108,9 +116,10 @@ export default function AppNavigator() {
     <Tab.Navigator
       screenOptions={({route}) => ({
         headerShown: false,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textMuted,
+        tabBarActiveTintColor: COLORS.primaryDeep,
+        tabBarInactiveTintColor: COLORS.textLight,
         tabBarStyle: styles.tabBar,
+        tabBarItemStyle: styles.tabItem,
         tabBarLabelStyle: styles.tabLabel,
         tabBarIcon: ({focused}) => <TabIcon name={route.name} focused={focused} />,
       })}>
@@ -130,15 +139,30 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderTopColor: COLORS.border,
     borderTopWidth: 1,
-    paddingBottom: 4,
-    paddingTop: 4,
-    height: 60,
+    paddingTop: 8,
+    paddingBottom: 10,
+    height: 68,
+    ...SHADOWS.md,
+  },
+  tabItem: {
+    paddingTop: 2,
   },
   tabLabel: {
     fontSize: FONTS.sizes.xs,
-    fontWeight: '600',
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  tabIconWrap: {
+    width: 46,
+    height: 30,
+    borderRadius: RADIUS.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabIconWrapActive: {
+    backgroundColor: COLORS.primaryLight,
   },
   tabIcon: {
-    fontSize: 22,
+    fontSize: 20,
   },
 });

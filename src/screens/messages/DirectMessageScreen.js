@@ -145,7 +145,7 @@ export default function DirectMessageScreen() {
           />
         )}
         ListEmptyComponent={
-          <EmptyState icon="✉️" title="No direct messages" subtitle="Start a conversation with a family member." />
+          <EmptyState icon="mail-outline" title="No direct messages" subtitle="Start a conversation with a family member." />
         }
         contentContainerStyle={messages.length === 0 ? {flex: 1} : {paddingVertical: SPACING.sm}}
       />

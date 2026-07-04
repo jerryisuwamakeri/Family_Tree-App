@@ -170,7 +170,7 @@ export default function UserManagementScreen() {
         keyExtractor={item => String(item.id)}
         renderItem={({item}) => <UserCard user={item} onPress={setSelected} />}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}
-        ListEmptyComponent={<EmptyState icon="👤" title="No users found" />}
+        ListEmptyComponent={<EmptyState icon="person-outline" title="No users found" />}
         ListHeaderComponent={
           <Text style={styles.count}>{users.length} user{users.length !== 1 ? 's' : ''}</Text>
         }
