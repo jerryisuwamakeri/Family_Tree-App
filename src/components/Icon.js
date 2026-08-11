@@ -1,6 +1,6 @@
 import React from 'react';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {COLORS} from '../utils/theme';
 
 // Single icon entry point so screens don't reach into font sets directly.
