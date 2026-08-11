@@ -3,7 +3,7 @@ import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
   Alert, Modal, ScrollView, Image, RefreshControl, ActivityIndicator,
 } from 'react-native';
-import {launchImageLibrary} from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 import {adminApi} from '../../api/admin';
 import {membersApi} from '../../api/members';
 import {metaApi} from '../../api/meta';
@@ -51,14 +51,18 @@ function EditModal({progenitor, onClose, onSaved}) {
   }, []);
 
   const handlePickPhoto = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission needed', 'Please allow photo library access.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
       quality: 0.8,
-      maxWidth: 800,
-      maxHeight: 800,
     });
 
-    if (result.didCancel || result.errorCode) return;
+    if (result.canceled) return;
 
     const asset = result.assets?.[0];
     if (!asset) return;
@@ -68,7 +72,7 @@ function EditModal({progenitor, onClose, onSaved}) {
       const formData = new FormData();
       formData.append('photo', {
         uri: asset.uri,
-        type: asset.type || 'image/jpeg',
+        type: asset.mimeType || 'image/jpeg',
         name: asset.fileName || 'photo.jpg',
       });
       await membersApi.uploadPhoto(progenitor.id, formData);
