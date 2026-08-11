@@ -6,7 +6,9 @@
     "orientation": "portrait",
     "icon": "./src/assets/icon.png",
     "userInterfaceStyle": "light",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "android": {
       "package": "com.familytreemobile",
       "adaptiveIcon": {
@@ -32,7 +34,8 @@
         {
           "photosPermission": "Allow Maliki Family to access your photos to set a member's profile picture."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "extra": {
       "eas": {
