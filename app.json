@@ -32,7 +32,9 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Maliki Family to access your photos to set a member's profile picture."
+          "photosPermission": "Allow Maliki Family to access your photos to set a member's profile picture.",
+          "cameraPermission": false,
+          "microphonePermission": false
         }
       ],
       "expo-font"
