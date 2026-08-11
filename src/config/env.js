@@ -1,11 +1,23 @@
 import {Platform} from 'react-native';
+import Constants from 'expo-constants';
+
+// Expo Go / dev-client embed the packager's LAN address in the manifest, e.g.
+// "192.168.1.23:8081" -- use that so a phone on the same network can reach this
+// machine. Fall back to the emulator/simulator loopback aliases when it's
+// unavailable (e.g. running in an emulator instead of a physical device).
+function getDevHost() {
+  const hostUri = Constants.expoConfig?.hostUri;
+  if (hostUri) {
+    const host = hostUri.split(':')[0];
+    if (host && host !== 'localhost' && host !== '127.0.0.1') return host;
+  }
+  return Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+}
 
 // __DEV__ is false in release builds, so a shipped APK can't fall back to a dev host.
 const ENV = {
   dev: {
-    // 10.0.2.2 is the emulator's route to the host's localhost.
-    // On a physical device, swap in the machine's LAN IP.
-    BASE_URL: Platform.OS === 'android' ? 'http://10.0.2.2:8000' : 'http://localhost:8000',
+    BASE_URL: `http://${getDevHost()}:8000`,
   },
   prod: {
     BASE_URL: 'https://imammalikiabdullahifamilytree.com',
