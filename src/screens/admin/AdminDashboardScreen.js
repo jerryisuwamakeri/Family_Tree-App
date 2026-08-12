@@ -92,6 +92,12 @@ export default function AdminDashboardScreen({navigation}) {
         onPress={() => navigation.navigate('UserManagement')}
       />
       <ActionCard
+        icon="git-network"
+        title="All Family Members"
+        subtitle="Browse, search, add, and edit every member"
+        onPress={() => navigation.navigate('Members', {screen: 'MembersList'})}
+      />
+      <ActionCard
         icon="business"
         title="Compound Management"
         subtitle="Add, edit, remove compounds"
@@ -100,7 +106,7 @@ export default function AdminDashboardScreen({navigation}) {
       <ActionCard
         icon="people-circle"
         title="Progenitor Management"
-        subtitle="Update photos and compounds for progenitors"
+        subtitle="Photos & compounds for the ~13 branch ancestors only"
         onPress={() => navigation.navigate('ProgenitorManagement')}
       />
 
