@@ -14,10 +14,17 @@ function getDevHost() {
   return Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
 }
 
+// Some networks (e.g. mobile hotspots with AP/client isolation) block a phone
+// from reaching this machine directly even on the same Wi-Fi. When that
+// happens, run the backend behind a tunnel too and point at it via a local
+// .env (EXPO_PUBLIC_* vars are inlined by Metro; .env is gitignored, so this
+// never needs a source edit or a commit).
+const DEV_BASE_URL_OVERRIDE = process.env.EXPO_PUBLIC_DEV_API_BASE_URL || null;
+
 // __DEV__ is false in release builds, so a shipped APK can't fall back to a dev host.
 const ENV = {
   dev: {
-    BASE_URL: `http://${getDevHost()}:8000`,
+    BASE_URL: DEV_BASE_URL_OVERRIDE || `http://${getDevHost()}:8000`,
   },
   prod: {
     BASE_URL: 'https://imammalikiabdullahifamilytree.com',
