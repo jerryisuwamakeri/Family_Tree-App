@@ -116,12 +116,16 @@ export function AuthProvider({children}) {
     dispatch({type: 'SET_AUTH', user, token});
   };
 
-  const register = async payload => {
-    const data = await authApi.register(payload);
-    const {token, user} = data;
-    await storage.setToken(token);
-    await storage.setUser(user);
-    dispatch({type: 'SET_AUTH', user, token});
+  const register = async formData => {
+    const data = await authApi.register(formData);
+    // New accounts are pending admin approval and come back with token: null --
+    // only treat this as a real login if a token was actually issued.
+    if (data.token) {
+      await storage.setToken(data.token);
+      await storage.setUser(data.user);
+      dispatch({type: 'SET_AUTH', user: data.user, token: data.token});
+    }
+    return data;
   };
 
   const logout = async () => {
