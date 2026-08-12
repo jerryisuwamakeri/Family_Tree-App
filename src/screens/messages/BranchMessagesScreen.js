@@ -22,7 +22,12 @@ export default function BranchMessagesScreen() {
   const load = async () => {
     try {
       const data = await messagesApi.getBranchMessages();
-      setMessages(Array.isArray(data) ? data : data?.data ?? []);
+      const list = (data?.messages ?? []).map(m => ({
+        ...m,
+        sender_id: m.user?.id,
+        sender_name: m.user?.name,
+      }));
+      setMessages(list);
     } catch {}
   };
 
@@ -62,7 +67,7 @@ export default function BranchMessagesScreen() {
         renderItem={({item}) => (
           <MessageItem
             message={item}
-            isOwn={item.user_id === user?.id || item.sender_id === user?.id}
+            isOwn={item.sender_id === user?.id}
           />
         )}
         onContentSizeChange={() => listRef.current?.scrollToEnd()}
