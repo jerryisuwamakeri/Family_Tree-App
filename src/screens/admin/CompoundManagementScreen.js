@@ -7,6 +7,7 @@ import {adminApi} from '../../api/admin';
 import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
+import Icon from '../../components/Icon';
 
 function CompoundForm({compound, onSave, onClose}) {
   const [name, setName] = useState(compound?.name || '');
@@ -38,7 +39,7 @@ function CompoundForm({compound, onSave, onClose}) {
     <Modal visible animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalHeader}>
         <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-          <Text style={styles.closeBtnText}>✕</Text>
+          <Icon name="close" size={18} color={COLORS.white} />
         </TouchableOpacity>
         <Text style={styles.modalTitle}>{compound ? 'Edit Compound' : 'Add Compound'}</Text>
       </View>
@@ -111,7 +112,8 @@ export default function CompoundManagementScreen() {
   return (
     <View style={styles.screen}>
       <TouchableOpacity style={styles.addBtn} onPress={() => setShowAdd(true)}>
-        <Text style={styles.addBtnText}>+ Add Compound</Text>
+        <Icon name="add" size={18} color={COLORS.white} />
+        <Text style={styles.addBtnText}>Add Compound</Text>
       </TouchableOpacity>
 
       <FlatList
@@ -122,7 +124,12 @@ export default function CompoundManagementScreen() {
           <View style={styles.card}>
             <View style={styles.cardInfo}>
               <Text style={styles.cardName}>{item.name}</Text>
-              {item.location ? <Text style={styles.cardLocation}>📍 {item.location}</Text> : null}
+              {item.location ? (
+                <View style={styles.cardLocationRow}>
+                  <Icon name="location-outline" size={12} color={COLORS.textMuted} />
+                  <Text style={styles.cardLocation}>{item.location}</Text>
+                </View>
+              ) : null}
               {item.members_count != null && (
                 <Text style={styles.cardCount}>{item.members_count} members</Text>
               )}
@@ -155,7 +162,9 @@ const styles = StyleSheet.create({
   screen: {flex: 1, backgroundColor: COLORS.background},
   addBtn: {
     backgroundColor: COLORS.primary, margin: SPACING.base,
-    borderRadius: RADIUS.md, paddingVertical: SPACING.md, alignItems: 'center',
+    borderRadius: RADIUS.full, paddingVertical: SPACING.md,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: SPACING.xs,
+    ...SHADOWS.brand,
   },
   addBtnText: {color: COLORS.white, fontWeight: FONTS.weights.semibold, fontSize: FONTS.sizes.sm},
   card: {
@@ -165,7 +174,8 @@ const styles = StyleSheet.create({
   },
   cardInfo: {flex: 1},
   cardName: {fontSize: FONTS.sizes.base, fontWeight: FONTS.weights.semibold, color: COLORS.text},
-  cardLocation: {fontSize: FONTS.sizes.xs, color: COLORS.textMuted, marginTop: 2},
+  cardLocationRow: {flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2},
+  cardLocation: {fontSize: FONTS.sizes.xs, color: COLORS.textMuted},
   cardCount: {fontSize: FONTS.sizes.xs, color: COLORS.primary, marginTop: 2, fontWeight: FONTS.weights.medium},
   cardActions: {flexDirection: 'row', gap: SPACING.sm},
   editBtn: {
@@ -184,10 +194,9 @@ const styles = StyleSheet.create({
   },
   closeBtn: {
     width: 32, height: 32, borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: COLORS.overlayOnBrandLight,
     justifyContent: 'center', alignItems: 'center', marginRight: SPACING.sm,
   },
-  closeBtnText: {color: COLORS.white, fontSize: FONTS.sizes.base},
   modalTitle: {flex: 1, color: COLORS.white, fontSize: FONTS.sizes.md, fontWeight: FONTS.weights.bold},
   modalBody: {flex: 1, padding: SPACING.base},
   label: {fontSize: FONTS.sizes.sm, fontWeight: FONTS.weights.medium, color: COLORS.text, marginBottom: SPACING.xs, marginTop: SPACING.base},
@@ -197,8 +206,9 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md, fontSize: FONTS.sizes.base, color: COLORS.text,
   },
   saveBtn: {
-    backgroundColor: COLORS.primary, borderRadius: RADIUS.md,
+    backgroundColor: COLORS.primary, borderRadius: RADIUS.full,
     paddingVertical: SPACING.base, alignItems: 'center', marginTop: SPACING.xl,
+    ...SHADOWS.brand,
   },
   saveBtnDisabled: {opacity: 0.6},
   saveBtnText: {color: COLORS.white, fontWeight: FONTS.weights.semibold, fontSize: FONTS.sizes.base},

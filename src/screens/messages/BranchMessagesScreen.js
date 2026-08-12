@@ -9,6 +9,7 @@ import MessageItem from '../../components/MessageItem';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import {COLORS, FONTS, SPACING, RADIUS} from '../../utils/theme';
+import Icon from '../../components/Icon';
 
 export default function BranchMessagesScreen() {
   const {user} = useAuth();
@@ -85,7 +86,7 @@ export default function BranchMessagesScreen() {
           style={[styles.sendBtn, (!text.trim() || sending) && styles.sendBtnDisabled]}
           onPress={handleSend}
           disabled={!text.trim() || sending}>
-          <Text style={styles.sendIcon}>➤</Text>
+          <Icon name="send" size={16} color={COLORS.white} />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -123,5 +124,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sendBtnDisabled: {backgroundColor: COLORS.textLight},
-  sendIcon: {color: COLORS.white, fontSize: 16},
 });

@@ -12,6 +12,7 @@ import EmptyState from '../../components/EmptyState';
 import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import {formatDate, isAdmin} from '../../utils/helpers';
 import {BASE_URL} from '../../api/client';
+import Icon from '../../components/Icon';
 
 function DetailModal({item, onClose, onDelete, canAdmin}) {
   if (!item) return null;
@@ -19,12 +20,12 @@ function DetailModal({item, onClose, onDelete, canAdmin}) {
     <Modal visible animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalHeader}>
         <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-          <Text style={styles.closeBtnText}>✕</Text>
+          <Icon name="close" size={18} color={COLORS.white} />
         </TouchableOpacity>
         <Text style={styles.modalTitle} numberOfLines={2}>{item.title}</Text>
         {canAdmin && (
           <TouchableOpacity onPress={onDelete} style={styles.deleteBtn}>
-            <Text style={styles.deleteBtnText}>🗑️</Text>
+            <Icon name="trash-outline" size={20} color={COLORS.white} />
           </TouchableOpacity>
         )}
       </View>
@@ -37,7 +38,8 @@ function DetailModal({item, onClose, onDelete, canAdmin}) {
             <Text style={styles.attachmentsTitle}>Attachments</Text>
             {item.attachments.map(a => (
               <View key={a.id} style={styles.attachmentRow}>
-                <Text style={styles.attachmentName}>📎 {a.file_name || 'File'}</Text>
+                <Icon name="attach-outline" size={16} color={COLORS.textMuted} />
+                <Text style={styles.attachmentName}>{a.file_name || 'File'}</Text>
               </View>
             ))}
           </View>
@@ -101,7 +103,8 @@ export default function AnnouncementsScreen({navigation}) {
         <TouchableOpacity
           style={styles.postBtn}
           onPress={() => navigation.navigate('AddAnnouncement')}>
-          <Text style={styles.postBtnText}>+ Post Announcement</Text>
+          <Icon name="add" size={18} color={COLORS.white} />
+          <Text style={styles.postBtnText}>Post Announcement</Text>
         </TouchableOpacity>
       )}
 
@@ -133,10 +136,13 @@ const styles = StyleSheet.create({
   postBtn: {
     backgroundColor: COLORS.primary,
     margin: SPACING.base,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.full,
     paddingVertical: SPACING.md,
+    flexDirection: 'row',
     alignItems: 'center',
-    ...SHADOWS.sm,
+    justifyContent: 'center',
+    gap: SPACING.xs,
+    ...SHADOWS.brand,
   },
   postBtnText: {color: COLORS.white, fontWeight: FONTS.weights.semibold, fontSize: FONTS.sizes.sm},
   modalHeader: {
@@ -149,14 +155,12 @@ const styles = StyleSheet.create({
   closeBtn: {
     width: 32, height: 32,
     borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: COLORS.overlayOnBrandLight,
     justifyContent: 'center', alignItems: 'center',
     marginRight: SPACING.sm,
   },
-  closeBtnText: {color: COLORS.white, fontSize: FONTS.sizes.base},
   modalTitle: {flex: 1, color: COLORS.white, fontSize: FONTS.sizes.md, fontWeight: FONTS.weights.bold},
   deleteBtn: {padding: SPACING.sm},
-  deleteBtnText: {fontSize: 20},
   modalBody: {flex: 1, padding: SPACING.base},
   modalDate: {fontSize: FONTS.sizes.xs, color: COLORS.textMuted, marginBottom: SPACING.xs},
   modalAuthor: {fontSize: FONTS.sizes.sm, color: COLORS.primary, fontWeight: FONTS.weights.medium, marginBottom: SPACING.base},
@@ -168,6 +172,6 @@ const styles = StyleSheet.create({
     padding: SPACING.base,
   },
   attachmentsTitle: {fontWeight: FONTS.weights.semibold, color: COLORS.primary, marginBottom: SPACING.sm},
-  attachmentRow: {paddingVertical: SPACING.xs},
+  attachmentRow: {flexDirection: 'row', alignItems: 'center', gap: SPACING.xs, paddingVertical: SPACING.xs},
   attachmentName: {fontSize: FONTS.sizes.sm, color: COLORS.text},
 });

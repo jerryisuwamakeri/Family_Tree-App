@@ -12,6 +12,7 @@ import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import {getInitials} from '../../utils/helpers';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
+import Icon from '../../components/Icon';
 
 function ProgenitorCard({item, onPress}) {
   const photoUri = item.photo_url ? `${BASE_URL}${item.photo_url}` : null;
@@ -30,7 +31,7 @@ function ProgenitorCard({item, onPress}) {
           {item.compound || item.compound_ref?.name || 'No compound assigned'}
         </Text>
       </View>
-      <Text style={styles.cardArrow}>›</Text>
+      <Icon name="chevron-forward" size={20} color={COLORS.textLight} />
     </TouchableOpacity>
   );
 }
@@ -109,7 +110,7 @@ function EditModal({progenitor, onClose, onSaved}) {
       {/* Header */}
       <View style={styles.modalHeader}>
         <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-          <Text style={styles.closeBtnText}>✕</Text>
+          <Icon name="close" size={18} color={COLORS.white} />
         </TouchableOpacity>
         <Text style={styles.modalTitle} numberOfLines={1}>{progenitor.full_name}</Text>
       </View>
@@ -132,9 +133,12 @@ function EditModal({progenitor, onClose, onSaved}) {
             {uploadingPhoto ? (
               <ActivityIndicator size="small" color={COLORS.white} />
             ) : (
-              <Text style={styles.photoBtnText}>
-                {photoUri ? '🔄 Change Photo' : '📷 Upload Photo'}
-              </Text>
+              <>
+                <Icon name={photoUri ? 'sync-outline' : 'camera-outline'} size={16} color={COLORS.white} />
+                <Text style={styles.photoBtnText}>
+                  {photoUri ? 'Change Photo' : 'Upload Photo'}
+                </Text>
+              </>
             )}
           </TouchableOpacity>
         </View>
@@ -296,8 +300,6 @@ const styles = StyleSheet.create({
     marginTop: 3,
     fontWeight: FONTS.weights.medium,
   },
-  cardArrow: {fontSize: 22, color: COLORS.textLight},
-
   // Modal
   modalHeader: {
     flexDirection: 'row',
@@ -309,12 +311,11 @@ const styles = StyleSheet.create({
   closeBtn: {
     width: 32, height: 32,
     borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: COLORS.overlayOnBrandLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SPACING.sm,
   },
-  closeBtnText: {color: COLORS.white, fontSize: FONTS.sizes.base},
   modalTitle: {
     flex: 1,
     color: COLORS.white,
@@ -358,11 +359,15 @@ const styles = StyleSheet.create({
   },
   photoBtn: {
     backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.full,
     paddingHorizontal: SPACING.xl,
     paddingVertical: SPACING.md,
     minWidth: 160,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.xs,
+    ...SHADOWS.brand,
   },
   photoBtnDisabled: {opacity: 0.6},
   photoBtnText: {
@@ -423,10 +428,11 @@ const styles = StyleSheet.create({
   // Save button
   saveBtn: {
     backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.full,
     paddingVertical: SPACING.base,
     alignItems: 'center',
     marginTop: SPACING.xl,
+    ...SHADOWS.brand,
   },
   saveBtnDisabled: {opacity: 0.6},
   saveBtnText: {

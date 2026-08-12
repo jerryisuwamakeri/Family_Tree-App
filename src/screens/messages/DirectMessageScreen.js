@@ -9,8 +9,9 @@ import {useAuth} from '../../context/AuthContext';
 import MessageItem from '../../components/MessageItem';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
-import {COLORS, FONTS, SPACING, RADIUS} from '../../utils/theme';
+import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import {getInitials} from '../../utils/helpers';
+import Icon from '../../components/Icon';
 
 function NewMessageModal({visible, onClose, onSend}) {
   const [query, setQuery] = useState('');
@@ -39,7 +40,7 @@ function NewMessageModal({visible, onClose, onSend}) {
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalHeader}>
         <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-          <Text style={styles.closeBtnText}>✕</Text>
+          <Icon name="close" size={18} color={COLORS.white} />
         </TouchableOpacity>
         <Text style={styles.modalTitle}>New Direct Message</Text>
       </View>
@@ -56,7 +57,11 @@ function NewMessageModal({visible, onClose, onSend}) {
             returnKeyType="search"
           />
           <TouchableOpacity style={styles.searchBtn} onPress={search} disabled={searching}>
-            <Text style={styles.searchBtnText}>{searching ? '…' : '🔍'}</Text>
+            {searching ? (
+              <Text style={styles.searchBtnText}>…</Text>
+            ) : (
+              <Icon name="search" size={18} color={COLORS.white} />
+            )}
           </TouchableOpacity>
         </View>
 
@@ -69,7 +74,7 @@ function NewMessageModal({visible, onClose, onSend}) {
               <Text style={styles.resultInitials}>{getInitials(r.name || r.full_name)}</Text>
             </View>
             <Text style={styles.resultName}>{r.name || r.full_name}</Text>
-            {selected?.id === r.id && <Text style={styles.checkMark}>✓</Text>}
+            {selected?.id === r.id && <Icon name="checkmark-circle" size={20} color={COLORS.primary} />}
           </TouchableOpacity>
         ))}
 
@@ -131,7 +136,8 @@ export default function DirectMessageScreen() {
       <TouchableOpacity
         style={styles.newBtn}
         onPress={() => setShowNew(true)}>
-        <Text style={styles.newBtnText}>+ New Message</Text>
+        <Icon name="add" size={18} color={COLORS.white} />
+        <Text style={styles.newBtnText}>New Message</Text>
       </TouchableOpacity>
 
       <FlatList
@@ -160,9 +166,13 @@ const styles = StyleSheet.create({
   newBtn: {
     backgroundColor: COLORS.primary,
     margin: SPACING.base,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.full,
     paddingVertical: SPACING.md,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.xs,
+    ...SHADOWS.brand,
   },
   newBtnText: {color: COLORS.white, fontWeight: FONTS.weights.semibold, fontSize: FONTS.sizes.sm},
   modalHeader: {
@@ -174,10 +184,9 @@ const styles = StyleSheet.create({
   },
   closeBtn: {
     width: 32, height: 32, borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: COLORS.overlayOnBrandLight,
     justifyContent: 'center', alignItems: 'center', marginRight: SPACING.sm,
   },
-  closeBtnText: {color: COLORS.white, fontSize: FONTS.sizes.base},
   modalTitle: {flex: 1, color: COLORS.white, fontSize: FONTS.sizes.md, fontWeight: FONTS.weights.bold},
   modalBody: {flex: 1, padding: SPACING.base},
   label: {fontSize: FONTS.sizes.sm, fontWeight: FONTS.weights.medium, color: COLORS.text, marginBottom: SPACING.xs},
@@ -189,10 +198,10 @@ const styles = StyleSheet.create({
   },
   bodyInput: {height: 120, textAlignVertical: 'top', marginBottom: SPACING.base},
   searchBtn: {
-    backgroundColor: COLORS.primary, borderRadius: RADIUS.md,
-    paddingHorizontal: SPACING.base, justifyContent: 'center',
+    backgroundColor: COLORS.primary, borderRadius: RADIUS.full,
+    paddingHorizontal: SPACING.base, justifyContent: 'center', alignItems: 'center',
   },
-  searchBtnText: {fontSize: 18},
+  searchBtnText: {fontSize: 18, color: COLORS.white},
   resultRow: {
     flexDirection: 'row', alignItems: 'center',
     padding: SPACING.md, backgroundColor: COLORS.white,
@@ -207,10 +216,10 @@ const styles = StyleSheet.create({
   },
   resultInitials: {color: COLORS.white, fontSize: FONTS.sizes.xs, fontWeight: FONTS.weights.bold},
   resultName: {flex: 1, fontSize: FONTS.sizes.sm, color: COLORS.text},
-  checkMark: {color: COLORS.primary, fontSize: 18, fontWeight: FONTS.weights.bold},
   sendBtn: {
-    backgroundColor: COLORS.primary, borderRadius: RADIUS.md,
+    backgroundColor: COLORS.primary, borderRadius: RADIUS.full,
     paddingVertical: SPACING.base, alignItems: 'center',
+    ...SHADOWS.brand,
   },
   sendBtnDisabled: {opacity: 0.5},
   sendBtnText: {color: COLORS.white, fontWeight: FONTS.weights.semibold, fontSize: FONTS.sizes.base},

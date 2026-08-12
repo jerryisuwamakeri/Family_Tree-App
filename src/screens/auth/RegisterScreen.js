@@ -172,8 +172,11 @@ export default function RegisterScreen({navigation}) {
             onPress={handleVerifyNin}
             disabled={ninVerifying || nin.length !== 11}
             activeOpacity={0.8}>
+            {verifiedToken && !ninVerifying ? (
+              <Icon name="checkmark-circle" size={16} color={COLORS.white} />
+            ) : null}
             <Text style={styles.verifyBtnText}>
-              {ninVerifying ? 'Verifying…' : verifiedToken ? 'Verified ✓' : 'Verify NIN'}
+              {ninVerifying ? 'Verifying…' : verifiedToken ? 'Verified' : 'Verify NIN'}
             </Text>
           </TouchableOpacity>
 
@@ -351,7 +354,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     borderRadius: RADIUS.full,
     paddingVertical: SPACING.md,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.xs,
   },
   verifyBtnText: {color: COLORS.white, fontSize: FONTS.sizes.base, fontWeight: FONTS.weights.bold},
   verifiedBox: {
