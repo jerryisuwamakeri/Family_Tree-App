@@ -12,7 +12,10 @@ import Icon from './Icon';
 const nameOf = p =>
   p.alias || [p.first_name, p.middle_name, p.last_name].filter(Boolean).join(' ');
 
-export default function ProgenitorPickerField({value, onChange}) {
+// usePublic: fetch via the unauthenticated /meta/progenitors-public endpoint
+// instead of /meta/progenitors, which requires a logged-in user -- needed for
+// contexts like registration where there's no auth token yet.
+export default function ProgenitorPickerField({value, onChange, usePublic = false}) {
   const [rows, setRows] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -22,11 +25,12 @@ export default function ProgenitorPickerField({value, onChange}) {
   useEffect(() => {
     if (!modalVisible) return;
     setLoading(true);
-    metaApi.progenitors()
+    const fetchProgenitors = usePublic ? metaApi.progenitorsPublic : metaApi.progenitors;
+    fetchProgenitors()
       .then(data => setRows(Array.isArray(data) ? data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [modalVisible]);
+  }, [modalVisible, usePublic]);
 
   return (
     <>

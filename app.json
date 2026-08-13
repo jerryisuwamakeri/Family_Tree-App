@@ -1,4 +1,48 @@
 {
-  "name": "FamilyTreeMobile",
-  "displayName": "Maliki Family"
+  "expo": {
+    "name": "Maliki Family",
+    "slug": "maliki-family-tree",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/icon.png",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "package": "com.familytreemobile",
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/adaptive-icon.png",
+        "backgroundColor": "#00B14F"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.familytreemobile",
+      "supportsTablet": false
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./src/assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#00B14F"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Maliki Family to access your photos to set a member's profile picture.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": ""
+      }
+    }
+  }
 }

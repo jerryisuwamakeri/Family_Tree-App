@@ -8,6 +8,7 @@ import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import {getRoleLabel, getRoleBadgeColor, formatDate} from '../../utils/helpers';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
+import Icon from '../../components/Icon';
 
 const ROLES = [
   'super_admin', 'family_admin', 'branch_manager',
@@ -35,7 +36,7 @@ function UserCard({user, onPress}) {
           )}
         </View>
       </View>
-      <Text style={styles.arrow}>›</Text>
+      <Icon name="chevron-forward" size={20} color={COLORS.textLight} />
     </TouchableOpacity>
   );
 }
@@ -104,7 +105,7 @@ function UserModal({user, onClose, onUpdated}) {
     <Modal visible animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalHeader}>
         <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-          <Text style={styles.closeBtnText}>✕</Text>
+          <Icon name="close" size={18} color={COLORS.white} />
         </TouchableOpacity>
         <Text style={styles.modalTitle}>{user.name}</Text>
       </View>
@@ -116,7 +117,8 @@ function UserModal({user, onClose, onUpdated}) {
 
         {!user.approved && (
           <TouchableOpacity style={styles.approveBtn} onPress={approveUser} disabled={loading}>
-            <Text style={styles.approveBtnText}>✓ Approve User</Text>
+            <Icon name="checkmark-circle" size={18} color={COLORS.white} />
+            <Text style={styles.approveBtnText}>Approve User</Text>
           </TouchableOpacity>
         )}
 
@@ -135,7 +137,8 @@ function UserModal({user, onClose, onUpdated}) {
         ))}
 
         <TouchableOpacity style={styles.deleteBtn} onPress={deleteUser} disabled={loading}>
-          <Text style={styles.deleteBtnText}>🗑️ Delete User</Text>
+          <Icon name="trash-outline" size={16} color={COLORS.danger} />
+          <Text style={styles.deleteBtnText}>Delete User</Text>
         </TouchableOpacity>
 
         <View style={{height: SPACING.xxxl}} />
@@ -202,24 +205,23 @@ const styles = StyleSheet.create({
   badgeText: {fontSize: FONTS.sizes.xs, fontWeight: FONTS.weights.medium},
   pendingBadge: {backgroundColor: COLORS.secondaryLight, borderRadius: RADIUS.sm, paddingHorizontal: 6, paddingVertical: 2},
   pendingText: {fontSize: FONTS.sizes.xs, color: COLORS.secondary, fontWeight: FONTS.weights.medium},
-  arrow: {fontSize: 22, color: COLORS.textLight},
   modalHeader: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: COLORS.primary, padding: SPACING.base, paddingTop: SPACING.xl,
   },
   closeBtn: {
     width: 32, height: 32, borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: COLORS.overlayOnBrandLight,
     justifyContent: 'center', alignItems: 'center', marginRight: SPACING.sm,
   },
-  closeBtnText: {color: COLORS.white, fontSize: FONTS.sizes.base},
   modalTitle: {flex: 1, color: COLORS.white, fontSize: FONTS.sizes.md, fontWeight: FONTS.weights.bold},
   modalBody: {flex: 1, padding: SPACING.base},
   detailRow: {fontSize: FONTS.sizes.sm, color: COLORS.textMuted, marginBottom: SPACING.sm},
   detailValue: {color: COLORS.text, fontWeight: FONTS.weights.medium},
   approveBtn: {
-    backgroundColor: COLORS.success, borderRadius: RADIUS.md,
-    paddingVertical: SPACING.md, alignItems: 'center', marginVertical: SPACING.base,
+    backgroundColor: COLORS.success, borderRadius: RADIUS.full,
+    flexDirection: 'row', gap: SPACING.xs,
+    paddingVertical: SPACING.md, alignItems: 'center', justifyContent: 'center', marginVertical: SPACING.base,
   },
   approveBtnText: {color: COLORS.white, fontWeight: FONTS.weights.semibold},
   subHead: {
@@ -237,7 +239,8 @@ const styles = StyleSheet.create({
   roleBtnTextActive: {color: COLORS.primary, fontWeight: FONTS.weights.semibold},
   deleteBtn: {
     borderWidth: 1, borderColor: COLORS.danger, borderRadius: RADIUS.md,
-    paddingVertical: SPACING.md, alignItems: 'center', marginTop: SPACING.xl,
+    flexDirection: 'row', gap: SPACING.xs,
+    paddingVertical: SPACING.md, alignItems: 'center', justifyContent: 'center', marginTop: SPACING.xl,
   },
   deleteBtnText: {color: COLORS.danger, fontWeight: FONTS.weights.semibold},
 });

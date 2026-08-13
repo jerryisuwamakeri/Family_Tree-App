@@ -9,6 +9,7 @@ import MessageItem from '../../components/MessageItem';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import {COLORS, FONTS, SPACING, RADIUS} from '../../utils/theme';
+import Icon from '../../components/Icon';
 
 export default function BranchMessagesScreen() {
   const {user} = useAuth();
@@ -21,7 +22,12 @@ export default function BranchMessagesScreen() {
   const load = async () => {
     try {
       const data = await messagesApi.getBranchMessages();
-      setMessages(Array.isArray(data) ? data : data?.data ?? []);
+      const list = (data?.messages ?? []).map(m => ({
+        ...m,
+        sender_id: m.user?.id,
+        sender_name: m.user?.name,
+      }));
+      setMessages(list);
     } catch {}
   };
 
@@ -61,7 +67,7 @@ export default function BranchMessagesScreen() {
         renderItem={({item}) => (
           <MessageItem
             message={item}
-            isOwn={item.user_id === user?.id || item.sender_id === user?.id}
+            isOwn={item.sender_id === user?.id}
           />
         )}
         onContentSizeChange={() => listRef.current?.scrollToEnd()}
@@ -85,7 +91,7 @@ export default function BranchMessagesScreen() {
           style={[styles.sendBtn, (!text.trim() || sending) && styles.sendBtnDisabled]}
           onPress={handleSend}
           disabled={!text.trim() || sending}>
-          <Text style={styles.sendIcon}>➤</Text>
+          <Icon name="send" size={16} color={COLORS.white} />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -123,5 +129,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sendBtnDisabled: {backgroundColor: COLORS.textLight},
-  sendIcon: {color: COLORS.white, fontSize: 16},
 });

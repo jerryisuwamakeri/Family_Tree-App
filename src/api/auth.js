@@ -4,8 +4,13 @@ export const authApi = {
   login: (email, password) =>
     client.post('/auth/login', {email, password}).then(r => r.data),
 
-  register: payload =>
-    client.post('/auth/register', payload).then(r => r.data),
+  register: formData =>
+    client.post('/auth/register', formData, {
+      headers: {'Content-Type': 'multipart/form-data'},
+    }).then(r => r.data),
+
+  verifyNin: nin =>
+    client.post('/auth/verify-nin', {nin}).then(r => r.data),
 
   logout: () =>
     client.post('/auth/logout').then(r => r.data),

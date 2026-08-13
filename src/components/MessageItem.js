@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {COLORS, FONTS, SPACING, RADIUS} from '../utils/theme';
+
 import {formatDate, getInitials} from '../utils/helpers';
 
 export default function MessageItem({message, isOwn}) {
@@ -80,5 +81,5 @@ const styles = StyleSheet.create({
     marginTop: 4,
     textAlign: 'right',
   },
-  timeOwn: {color: 'rgba(255,255,255,0.7)'},
+  timeOwn: {color: COLORS.textOnBrandFaint},
 });

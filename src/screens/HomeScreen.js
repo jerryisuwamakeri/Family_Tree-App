@@ -73,7 +73,7 @@ export default function HomeScreen({navigation}) {
     {icon: 'people', label: 'Members', sub: 'Browse family', tint: COLORS.primary, onPress: () => navigation.navigate('Members')},
     {icon: 'megaphone', label: 'News', sub: 'Announcements', tint: COLORS.secondary, onPress: () => navigation.navigate('Announcements')},
     {icon: 'chatbubbles', label: 'Messages', sub: 'Stay in touch', tint: COLORS.info, onPress: () => navigation.navigate('Messages')},
-    isAdmin(user) && {icon: 'shield-checkmark', label: 'Admin', sub: 'Manage family', tint: '#8B5CF6', onPress: () => navigation.navigate('Admin')},
+    isAdmin(user) && {icon: 'shield-checkmark', label: 'Admin', sub: 'Manage family', tint: COLORS.violet, onPress: () => navigation.navigate('Admin')},
   ].filter(Boolean);
 
   return (
@@ -117,7 +117,7 @@ export default function HomeScreen({navigation}) {
         {/* Approval notice */}
         {user && !user.approved && (
           <View style={styles.noticeBanner}>
-            <Icon name="time-outline" size={18} color="#92610A" />
+            <Icon name="time-outline" size={18} color={COLORS.warningDark} />
             <Text style={styles.noticeText}>
               Your account is pending approval by a family admin.
             </Text>
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
   logoutBtn: {
-    backgroundColor: 'rgba(255,255,255,0.18)',
+    backgroundColor: COLORS.overlayOnBrandSubtle,
     borderRadius: RADIUS.full,
     paddingHorizontal: SPACING.base,
     paddingVertical: SPACING.sm,
@@ -223,12 +223,12 @@ const styles = StyleSheet.create({
   },
   avatar: {
     width: 52, height: 52, borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(255,255,255,0.22)',
+    backgroundColor: COLORS.overlayOnBrandLight,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: 'rgba(255,255,255,0.35)',
+    borderWidth: 2, borderColor: COLORS.overlayOnBrandMedium,
   },
   avatarText: {color: COLORS.white, fontSize: FONTS.sizes.lg, fontWeight: FONTS.weights.bold},
-  welcomeText: {color: 'rgba(255,255,255,0.85)', fontSize: FONTS.sizes.sm},
+  welcomeText: {color: COLORS.overlayOnBrandStrong, fontSize: FONTS.sizes.sm},
   userName: {
     color: COLORS.white,
     fontSize: FONTS.sizes.xl,
@@ -255,10 +255,9 @@ const styles = StyleSheet.create({
     marginTop: SPACING.base,
     borderRadius: RADIUS.md,
     borderWidth: 1,
-    borderColor: '#FBE3A1',
+    borderColor: COLORS.warningBorder,
   },
-  noticeIcon: {fontSize: 18},
-  noticeText: {flex: 1, color: '#92610A', fontSize: FONTS.sizes.sm, fontWeight: FONTS.weights.medium},
+  noticeText: {flex: 1, color: COLORS.warningDark, fontSize: FONTS.sizes.sm, fontWeight: FONTS.weights.medium},
 
   sectionTitle: {
     fontSize: FONTS.sizes.md,

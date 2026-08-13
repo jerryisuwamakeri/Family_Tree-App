@@ -1,22 +1,24 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {
   View, FlatList, TextInput, TouchableOpacity, Text,
-  StyleSheet, KeyboardAvoidingView, Platform, Alert, Modal,
-  ScrollView,
+  StyleSheet, KeyboardAvoidingView, Platform, Alert,
 } from 'react-native';
 import {messagesApi} from '../../api/messages';
 import {useAuth} from '../../context/AuthContext';
 import MessageItem from '../../components/MessageItem';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
-import {COLORS, FONTS, SPACING, RADIUS} from '../../utils/theme';
+import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import {getInitials} from '../../utils/helpers';
+import Icon from '../../components/Icon';
 
-function NewMessageModal({visible, onClose, onSend}) {
+// Backend has no "list my conversation threads" endpoint -- a direct
+// message thread only exists once you specify who with (recipient_id).
+// So this screen always starts at "pick someone" and only shows a
+// message thread once a recipient is selected.
+function RecipientPicker({onSelect}) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
-  const [selected, setSelected] = useState(null);
-  const [body, setBody] = useState('');
   const [searching, setSearching] = useState(false);
 
   const search = async () => {
@@ -29,189 +31,215 @@ function NewMessageModal({visible, onClose, onSend}) {
     setSearching(false);
   };
 
-  const handleSend = () => {
-    if (!selected || !body.trim()) return;
-    onSend({member_id: selected.id, body: body.trim()});
-    setQuery(''); setResults([]); setSelected(null); setBody('');
-  };
-
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={styles.modalHeader}>
-        <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-          <Text style={styles.closeBtnText}>✕</Text>
+    <View style={styles.pickerScreen}>
+      <Text style={styles.pickerTitle}>Message someone</Text>
+      <Text style={styles.pickerSub}>Search for a family member to start a conversation</Text>
+      <View style={styles.searchRow}>
+        <TextInput
+          style={[styles.input, {flex: 1}]}
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Name or email…"
+          placeholderTextColor={COLORS.textLight}
+          onSubmitEditing={search}
+          returnKeyType="search"
+        />
+        <TouchableOpacity style={styles.searchBtn} onPress={search} disabled={searching}>
+          {searching ? (
+            <Text style={styles.searchBtnText}>…</Text>
+          ) : (
+            <Icon name="search" size={18} color={COLORS.white} />
+          )}
         </TouchableOpacity>
-        <Text style={styles.modalTitle}>New Direct Message</Text>
       </View>
-      <ScrollView style={styles.modalBody} keyboardShouldPersistTaps="handled">
-        <Text style={styles.label}>Search recipient</Text>
-        <View style={styles.searchRow}>
-          <TextInput
-            style={[styles.input, {flex: 1}]}
-            value={query}
-            onChangeText={setQuery}
-            placeholder="Name or email…"
-            placeholderTextColor={COLORS.textLight}
-            onSubmitEditing={search}
-            returnKeyType="search"
-          />
-          <TouchableOpacity style={styles.searchBtn} onPress={search} disabled={searching}>
-            <Text style={styles.searchBtnText}>{searching ? '…' : '🔍'}</Text>
-          </TouchableOpacity>
-        </View>
 
-        {results.map(r => (
-          <TouchableOpacity
-            key={r.id}
-            style={[styles.resultRow, selected?.id === r.id && styles.resultRowActive]}
-            onPress={() => setSelected(r)}>
+      <FlatList
+        data={results}
+        keyExtractor={r => String(r.id)}
+        renderItem={({item: r}) => (
+          <TouchableOpacity style={styles.resultRow} onPress={() => onSelect(r)}>
             <View style={styles.resultAvatar}>
               <Text style={styles.resultInitials}>{getInitials(r.name || r.full_name)}</Text>
             </View>
             <Text style={styles.resultName}>{r.name || r.full_name}</Text>
-            {selected?.id === r.id && <Text style={styles.checkMark}>✓</Text>}
+            <Icon name="chevron-forward" size={18} color={COLORS.textLight} />
           </TouchableOpacity>
-        ))}
-
-        <Text style={[styles.label, {marginTop: SPACING.base}]}>Message</Text>
-        <TextInput
-          style={[styles.input, styles.bodyInput]}
-          value={body}
-          onChangeText={setBody}
-          placeholder="Type your message…"
-          placeholderTextColor={COLORS.textLight}
-          multiline
-        />
-
-        <TouchableOpacity
-          style={[styles.sendBtn, (!selected || !body.trim()) && styles.sendBtnDisabled]}
-          onPress={handleSend}
-          disabled={!selected || !body.trim()}>
-          <Text style={styles.sendBtnText}>Send Message</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </Modal>
-  );
-}
-
-export default function DirectMessageScreen() {
-  const {user} = useAuth();
-  const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showNew, setShowNew] = useState(false);
-  const listRef = useRef(null);
-
-  const load = async () => {
-    try {
-      const data = await messagesApi.getDirectMessages();
-      setMessages(Array.isArray(data) ? data : data?.data ?? []);
-    } catch {}
-  };
-
-  useEffect(() => {
-    load().finally(() => setLoading(false));
-    const interval = setInterval(load, 15000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleSend = async payload => {
-    try {
-      await messagesApi.sendDirectMessage(payload);
-      setShowNew(false);
-      await load();
-    } catch (e) {
-      Alert.alert('Error', e.message);
-    }
-  };
-
-  if (loading) return <LoadingSpinner fullScreen />;
-
-  return (
-    <View style={styles.screen}>
-      <TouchableOpacity
-        style={styles.newBtn}
-        onPress={() => setShowNew(true)}>
-        <Text style={styles.newBtnText}>+ New Message</Text>
-      </TouchableOpacity>
-
-      <FlatList
-        ref={listRef}
-        data={messages}
-        keyExtractor={item => String(item.id)}
-        renderItem={({item}) => (
-          <MessageItem
-            message={item}
-            isOwn={item.sender_user_id === user?.id}
-          />
         )}
-        ListEmptyComponent={
-          <EmptyState icon="mail-outline" title="No direct messages" subtitle="Start a conversation with a family member." />
-        }
-        contentContainerStyle={messages.length === 0 ? {flex: 1} : {paddingVertical: SPACING.sm}}
       />
-
-      <NewMessageModal visible={showNew} onClose={() => setShowNew(false)} onSend={handleSend} />
     </View>
   );
 }
 
+function ThreadView({recipient, onChangeRecipient}) {
+  const {user} = useAuth();
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [text, setText] = useState('');
+  const [sending, setSending] = useState(false);
+  const listRef = useRef(null);
+
+  const load = useCallback(async () => {
+    try {
+      const data = await messagesApi.getDirectMessages(recipient.id);
+      const list = (data?.messages ?? []).map(m => ({
+        ...m,
+        sender_id: m.sender?.id,
+        sender_name: m.sender?.name,
+      }));
+      setMessages(list);
+    } catch {}
+  }, [recipient.id]);
+
+  useEffect(() => {
+    setLoading(true);
+    load().finally(() => setLoading(false));
+    const interval = setInterval(load, 15000);
+    return () => clearInterval(interval);
+  }, [load]);
+
+  const handleSend = async () => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    setSending(true);
+    try {
+      await messagesApi.sendDirectMessage(recipient.id, trimmed);
+      setText('');
+      await load();
+      setTimeout(() => listRef.current?.scrollToEnd({animated: true}), 200);
+    } catch (e) {
+      Alert.alert('Error', e.message);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.screen}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={90}>
+      <View style={styles.threadHeader}>
+        <TouchableOpacity onPress={onChangeRecipient} style={styles.backBtn}>
+          <Icon name="chevron-back" size={20} color={COLORS.primary} />
+        </TouchableOpacity>
+        <Text style={styles.threadHeaderName} numberOfLines={1}>{recipient.name || recipient.full_name}</Text>
+      </View>
+
+      {loading ? (
+        <LoadingSpinner fullScreen />
+      ) : (
+        <FlatList
+          ref={listRef}
+          data={messages}
+          keyExtractor={item => String(item.id)}
+          renderItem={({item}) => (
+            <MessageItem message={item} isOwn={item.sender_id === user?.id} />
+          )}
+          onContentSizeChange={() => listRef.current?.scrollToEnd()}
+          ListEmptyComponent={
+            <EmptyState icon="mail-outline" title="No messages yet" subtitle="Say hello to start the conversation." />
+          }
+          contentContainerStyle={messages.length === 0 ? {flex: 1} : {paddingVertical: SPACING.sm}}
+        />
+      )}
+
+      <View style={styles.inputBar}>
+        <TextInput
+          style={styles.msgInput}
+          value={text}
+          onChangeText={setText}
+          placeholder="Write a message…"
+          placeholderTextColor={COLORS.textLight}
+          multiline
+          maxLength={1000}
+        />
+        <TouchableOpacity
+          style={[styles.sendBtn, (!text.trim() || sending) && styles.sendBtnDisabled]}
+          onPress={handleSend}
+          disabled={!text.trim() || sending}>
+          <Icon name="send" size={16} color={COLORS.white} />
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
+  );
+}
+
+export default function DirectMessageScreen() {
+  const [recipient, setRecipient] = useState(null);
+
+  if (!recipient) {
+    return <RecipientPicker onSelect={setRecipient} />;
+  }
+  return <ThreadView recipient={recipient} onChangeRecipient={() => setRecipient(null)} />;
+}
+
 const styles = StyleSheet.create({
   screen: {flex: 1, backgroundColor: COLORS.background},
-  newBtn: {
-    backgroundColor: COLORS.primary,
-    margin: SPACING.base,
-    borderRadius: RADIUS.md,
-    paddingVertical: SPACING.md,
-    alignItems: 'center',
+  pickerScreen: {flex: 1, backgroundColor: COLORS.background, padding: SPACING.base},
+  pickerTitle: {
+    fontSize: FONTS.sizes.xl, fontWeight: FONTS.weights.bold, color: COLORS.text,
+    marginTop: SPACING.base,
   },
-  newBtnText: {color: COLORS.white, fontWeight: FONTS.weights.semibold, fontSize: FONTS.sizes.sm},
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.primary,
-    padding: SPACING.base,
-    paddingTop: SPACING.xl,
-  },
-  closeBtn: {
-    width: 32, height: 32, borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center', alignItems: 'center', marginRight: SPACING.sm,
-  },
-  closeBtnText: {color: COLORS.white, fontSize: FONTS.sizes.base},
-  modalTitle: {flex: 1, color: COLORS.white, fontSize: FONTS.sizes.md, fontWeight: FONTS.weights.bold},
-  modalBody: {flex: 1, padding: SPACING.base},
-  label: {fontSize: FONTS.sizes.sm, fontWeight: FONTS.weights.medium, color: COLORS.text, marginBottom: SPACING.xs},
+  pickerSub: {fontSize: FONTS.sizes.sm, color: COLORS.textMuted, marginTop: SPACING.xs, marginBottom: SPACING.xl},
   searchRow: {flexDirection: 'row', gap: SPACING.sm, marginBottom: SPACING.base},
   input: {
     backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.border,
     borderRadius: RADIUS.md, paddingHorizontal: SPACING.base,
     paddingVertical: SPACING.md, fontSize: FONTS.sizes.base, color: COLORS.text,
   },
-  bodyInput: {height: 120, textAlignVertical: 'top', marginBottom: SPACING.base},
   searchBtn: {
-    backgroundColor: COLORS.primary, borderRadius: RADIUS.md,
-    paddingHorizontal: SPACING.base, justifyContent: 'center',
+    backgroundColor: COLORS.primary, borderRadius: RADIUS.full,
+    paddingHorizontal: SPACING.base, justifyContent: 'center', alignItems: 'center',
   },
-  searchBtnText: {fontSize: 18},
+  searchBtnText: {fontSize: 18, color: COLORS.white},
   resultRow: {
     flexDirection: 'row', alignItems: 'center',
     padding: SPACING.md, backgroundColor: COLORS.white,
     borderRadius: RADIUS.md, marginBottom: SPACING.xs,
     borderWidth: 1, borderColor: COLORS.border,
   },
-  resultRowActive: {borderColor: COLORS.primary, backgroundColor: COLORS.primaryLight},
   resultAvatar: {
-    width: 32, height: 32, borderRadius: RADIUS.full,
+    width: 36, height: 36, borderRadius: RADIUS.full,
     backgroundColor: COLORS.primary,
     justifyContent: 'center', alignItems: 'center', marginRight: SPACING.sm,
   },
   resultInitials: {color: COLORS.white, fontSize: FONTS.sizes.xs, fontWeight: FONTS.weights.bold},
-  resultName: {flex: 1, fontSize: FONTS.sizes.sm, color: COLORS.text},
-  checkMark: {color: COLORS.primary, fontSize: 18, fontWeight: FONTS.weights.bold},
-  sendBtn: {
-    backgroundColor: COLORS.primary, borderRadius: RADIUS.md,
-    paddingVertical: SPACING.base, alignItems: 'center',
+  resultName: {flex: 1, fontSize: FONTS.sizes.base, color: COLORS.text},
+  threadHeader: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: COLORS.white, padding: SPACING.sm,
+    borderBottomWidth: 1, borderBottomColor: COLORS.border,
   },
-  sendBtnDisabled: {opacity: 0.5},
-  sendBtnText: {color: COLORS.white, fontWeight: FONTS.weights.semibold, fontSize: FONTS.sizes.base},
+  backBtn: {padding: SPACING.xs, marginRight: SPACING.xs},
+  threadHeaderName: {flex: 1, fontSize: FONTS.sizes.md, fontWeight: FONTS.weights.semibold, color: COLORS.text},
+  inputBar: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    padding: SPACING.sm,
+    backgroundColor: COLORS.white,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    gap: SPACING.sm,
+  },
+  msgInput: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.xl,
+    paddingHorizontal: SPACING.base,
+    paddingVertical: SPACING.sm,
+    fontSize: FONTS.sizes.base,
+    color: COLORS.text,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    maxHeight: 100,
+  },
+  sendBtn: {
+    width: 40, height: 40,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sendBtnDisabled: {backgroundColor: COLORS.textLight},
 });

@@ -4,7 +4,7 @@ import {
   StyleSheet, Alert, Switch, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import {membersApi} from '../../api/members';
-import {COLORS, FONTS, SPACING, RADIUS} from '../../utils/theme';
+import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import MemberPickerModal from '../../components/MemberPickerModal';
 import CompoundPickerField from '../../components/CompoundPickerField';
 import ProgenitorPickerField from '../../components/ProgenitorPickerField';
@@ -277,12 +277,11 @@ const styles = StyleSheet.create({
   },
   memberSelectorText: {flex: 1, fontSize: FONTS.sizes.base, color: COLORS.text},
   placeholder: {color: COLORS.textLight},
-  chevron: {fontSize: 16, color: COLORS.textMuted},
-  clearBtn: {fontSize: 14, color: COLORS.danger, fontWeight: FONTS.weights.bold},
   submitBtn: {
-    backgroundColor: COLORS.primary, borderRadius: RADIUS.md,
+    backgroundColor: COLORS.primary, borderRadius: RADIUS.full,
     paddingVertical: SPACING.base, alignItems: 'center',
     marginHorizontal: SPACING.base, marginTop: SPACING.xl,
+    ...SHADOWS.brand,
   },
   btnDisabled: {opacity: 0.6},
   submitText: {color: COLORS.white, fontSize: FONTS.sizes.base, fontWeight: FONTS.weights.semibold},

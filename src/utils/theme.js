@@ -41,6 +41,18 @@ export const COLORS = {
   infoLight: '#E7F0FE',
 
   overlay: 'rgba(15,27,45,0.55)',
+  // White-on-brand overlays -- circular buttons/badges sitting on a solid
+  // COLORS.primary header (close buttons, hero avatar ring, etc).
+  overlayOnBrandSubtle: 'rgba(255,255,255,0.18)',
+  overlayOnBrandLight: 'rgba(255,255,255,0.2)',
+  overlayOnBrandMedium: 'rgba(255,255,255,0.35)',
+  overlayOnBrandStrong: 'rgba(255,255,255,0.85)',
+  textOnBrandMuted: 'rgba(255,255,255,0.8)',
+  textOnBrandFaint: 'rgba(255,255,255,0.7)',
+  overlayDarkSubtle: 'rgba(0,0,0,0.25)',
+  warningDark: '#92610A',
+  warningBorder: '#FBE3A1',
+  violet: '#8B5CF6',
 };
 
 // Avatar/chip colors — all pass contrast on white.

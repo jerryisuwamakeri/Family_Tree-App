@@ -4,7 +4,7 @@ import {
   StyleSheet, Alert, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import {announcementsApi} from '../../api/announcements';
-import {COLORS, FONTS, SPACING, RADIUS} from '../../utils/theme';
+import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 
 export default function AddAnnouncementScreen({navigation}) {
   const [title, setTitle] = useState('');
@@ -87,8 +87,9 @@ const styles = StyleSheet.create({
     marginTop: SPACING.sm, lineHeight: 18,
   },
   btn: {
-    backgroundColor: COLORS.primary, borderRadius: RADIUS.md,
+    backgroundColor: COLORS.primary, borderRadius: RADIUS.full,
     paddingVertical: SPACING.base, alignItems: 'center', marginTop: SPACING.xl,
+    ...SHADOWS.brand,
   },
   btnDisabled: {opacity: 0.6},
   btnText: {color: COLORS.white, fontSize: FONTS.sizes.base, fontWeight: FONTS.weights.semibold},
